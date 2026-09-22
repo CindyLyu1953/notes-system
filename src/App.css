@@ -1,1 +1,1 @@
-/* App-level styles live in index.css and src/styles/surface.css */
+@import "./features/knowledgeIdentity/knowledgeIdentity.css";

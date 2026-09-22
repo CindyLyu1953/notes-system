@@ -1,0 +1,3 @@
+const baseUrl=(import.meta.env.VITE_API_BASE_URL||"http://127.0.0.1:8000").replace(/\/+$/,"");
+async function request(path,init){const response=await fetch(`${baseUrl}/api/v1/knowledge-identity${path}`,{...init,headers:{"Content-Type":"application/json",...(init?.headers||{})}});if(!response.ok)throw new Error(`Knowledge Identity API returned ${response.status}.`);return response.json();}
+export const identityApi={load:()=>request(""),addInput:(payload)=>request("/inputs",{method:"POST",body:JSON.stringify(payload)}),chat:(message)=>request("/chat",{method:"POST",body:JSON.stringify({message})})};

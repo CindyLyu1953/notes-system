@@ -1,44 +1,41 @@
 :root {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #1f2933;
+  background: #f3f5f8;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --ns-primary: #3a6ea5;
+  --ns-primary-hover: #4d82b8;
+  --ns-primary-active: #2d5684;
+  --ns-primary-bg: #e8f0f8;
+  --ns-primary-border: #b8cfe8;
+  --ns-wisdom: #f4d06f;
+  --ns-wisdom-bg: rgba(244, 208, 111, 0.24);
+  --ns-sage: #7bae7f;
+  --ns-teal: #4fa3a5;
+  --ns-coral: #d9826b;
+  --ns-lavender: #9b8acb;
+  --ns-bg: #f3f5f8;
+  --ns-surface: #ffffff;
+  --ns-text: #1f2933;
+  --ns-muted: #52616b;
+  --ns-subtle: rgba(31, 41, 51, 0.52);
+  --ns-border: rgba(5, 5, 5, 0.09);
+  --ns-radius-sm: 6px;
+  --ns-radius-md: 8px;
+  --ns-radius-lg: 12px;
+  --ns-radius-xl: 16px;
+  --ns-radius-pill: 999px;
+  --ns-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.035);
+  --ns-shadow-md: 0 12px 32px rgba(15, 23, 42, 0.08);
+  --ns-focus: 2px solid rgba(58, 110, 165, 0.5);
 }
 
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-#root {
-  width: 100%;
-  min-height: 100vh;
-}
-
-.route-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--ns-space-3);
-  min-height: 240px;
-  color: var(--ns-color-text-secondary);
-  font-size: var(--ns-font-size-md);
-}
-
-.route-loading::before {
-  content: "";
-  width: 32px;
-  height: 32px;
-  border: 3px solid var(--ns-color-fill-tertiary);
-  border-top-color: var(--ns-color-primary);
-  border-radius: 50%;
-  animation: ns-spin 0.75s linear infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .route-loading::before {
-    animation: none;
-  }
-}
+* { box-sizing: border-box; }
+html { min-width: 320px; scroll-behavior: smooth; background: var(--ns-bg); }
+body { margin: 0; min-width: 320px; min-height: 100vh; }
+button, textarea, select, input { font: inherit; }
+button, select { cursor: pointer; }
+button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible { outline: var(--ns-focus); outline-offset: 3px; }
+::selection { background: var(--ns-wisdom-bg); color: var(--ns-text); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }

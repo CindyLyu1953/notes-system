@@ -1,53 +1,24 @@
-# notes-system
+# Knowledge Identity frontend prototype
 
-React frontend for Notes System. The app can run in two modes:
+This branch is an evidence-backed personal knowledge identity prototype. It keeps the original Notes System visual language—academic blue, wisdom-gold accents, translucent top navigation, compact cards, and the existing spacing system—while replacing the product behavior.
 
-- **Static mode** for GitHub Pages, reading published mirrors under `public/`.
-- **API mode** for local development, using `VITE_API_BASE_URL` to call the FastAPI backend.
-
-Generated subject content is owned by the backend repo. Files under `public/notes/`,
-`public/graphs/`, `public/audio/`, and `public/subjects/` are frontend publish mirrors,
-not canonical authoring sources.
-
-## Usage
-
-1. Open command prompt (terminal) inside the cloned repository folder. 
-
-2. Install all required dependencies using the command:
-
-    ```
-    npm install
-    ```
-
-3. Open the website locally using the command:
-
-    ```
-    npm run dev
-    ```
-
-    or
-
-    ```
-    npx vite
-    ```
-
-    To use API mode, run the backend separately and set `VITE_API_BASE_URL` in
-    `.env.local`.
-
-## Static content mirror
-
-The backend is the canonical source for generated notes, graphs, images, audio,
-and subject overview data. This frontend keeps a static mirror for GitHub Pages.
-
-Sync current backend outputs into the frontend mirror with:
+## Run
 
 ```bash
-npm run sync:backend-content -- --subject data-science
-npm run generate:notes
+npm install
+cp .env.example .env.local
+npm run prototype
 ```
 
-See `docs/content-sync.md` for the source-of-truth rules and migration plan.
+The frontend attempts to use the local API at `http://127.0.0.1:8000`. If it is unavailable, the complete prototype remains interactive in local demo mode. No sign-in is required for this single-user prototype.
 
-4. Publish and Deploy  
+## Product surface
 
-    As long as push in `main` branch or pull request to `main` branch is detected, the website will be automatically built, deployed to `gh-pages` branch and published to [https://gavin-op.github.io/notes-system/](https://gavin-op.github.io/notes-system/).
+- Free-form capture that organizes input into concepts and evidence-backed notes
+- Living knowledge graph and knowledge-state overview
+- Weekly growth recap and next-knowledge recommendation
+- Grounded chat over the user's knowledge identity
+
+## Prototype question
+
+Does a product centered on a visible, evidence-backed knowledge identity feel more valuable than a traditional notes dashboard while remaining familiar to Notes System users?
