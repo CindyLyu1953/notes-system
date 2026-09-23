@@ -3,7 +3,7 @@ async function request(path,init){const response=await fetch(`${baseUrl}/api/v1/
 export const identityApi={
   load:()=>request(""),
   previewInput:(payload)=>request("/inputs/preview",{method:"POST",body:JSON.stringify(payload)}),
-  commitWorkflow:(runId)=>request(`/workflow-runs/${runId}/commit`,{method:"POST"}),
+  commitWorkflow:(runId,decisions=[])=>request(`/workflow-runs/${runId}/commit`,{method:"POST",body:JSON.stringify({decisions})}),
   rejectWorkflow:(runId)=>request(`/workflow-runs/${runId}/reject`,{method:"POST"}),
   chat:(message)=>request("/chat",{method:"POST",body:JSON.stringify({message})}),
 };

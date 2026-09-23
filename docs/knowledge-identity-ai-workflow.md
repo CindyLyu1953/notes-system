@@ -9,7 +9,7 @@
 | 阶段 | 状态 | 已完成 |
 |---|---|---|
 | Phase 1 · 可审计写入路径 | 已完成 | Graph / Node / Action、唯一 ActionExecutor、Evidence、workflow run |
-| Phase 2 · 选择性确认 | 已完成第一版 | 输入预览、原文先保存、接受并组织、拒绝并保留原文 |
+| Phase 2 · 选择性确认 | 已完成 | 输入预览、原文先保存、逐条修改/接受/拒绝、依赖清理 |
 | Phase 3 · 真正的 AI extraction | 未开始 | 当前仍使用可预测的本地 extraction adapter |
 | Phase 4 · 持久化与检索 | 未开始 | 当前数据仍为进程内存 |
 | Phase 5 · 复杂编排 | 按需评估 | 暂不引入 LangGraph |
@@ -177,8 +177,9 @@ Knowledge Identity Chat 不把全部历史塞给模型。每次回答只组装�
 - [x] 增加 pending Action 预览
 - [x] 增加整次理解的接受 / 拒绝
 - [x] 前端展示“AI 准备如何理解这条输入”
-- [ ] 支持逐条修改 Concept / Relation proposal
-- [ ] 支持逐条接受或拒绝 Action
+- [x] 支持修改 Concept 名称与 Knowledge State
+- [x] 支持逐条接受或拒绝 Concept / Relation proposal
+- [x] 拒绝 Concept 时自动拒绝依赖的 State、Relation 与下游引用
 
 ### Phase 3 · 真正的 AI extraction
 
