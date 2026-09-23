@@ -1,5 +1,11 @@
 # Knowledge Identity frontend prototype
 
+Design documentation:
+
+- [AI workflow](./docs/knowledge-identity-ai-workflow.md)
+- [Domain language](./CONTEXT.md)
+- [Architecture decision: evidence-first Action pipeline](./docs/adr/0001-evidence-first-action-pipeline.md)
+
 This branch is an evidence-backed personal knowledge identity prototype. It keeps the original Notes System visual language—academic blue, wisdom-gold accents, translucent top navigation, compact cards, and the existing spacing system—while replacing the product behavior.
 
 ## Run
