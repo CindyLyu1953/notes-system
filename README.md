@@ -20,8 +20,10 @@ The frontend attempts to use the local API at `http://127.0.0.1:8000`. If it is 
 
 ## Product surface
 
-- Free-form capture that organizes input into concepts and evidence-backed notes
+- One effortless capture box for text, links, voice transcription, drag-and-drop, and file selection
+- Automatic input-type inference instead of asking the user to organize before capture
 - Edit or reject individual AI-proposed concepts, states, and connections before they change the identity
+- Visible extraction provenance: configured AI model or local fallback
 - Living knowledge graph and knowledge-state overview
 - Weekly growth recap and next-knowledge recommendation
 - Grounded chat over the user's knowledge identity

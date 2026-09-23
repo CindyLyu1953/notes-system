@@ -10,7 +10,7 @@
 |---|---|---|
 | Phase 1 · 可审计写入路径 | 已完成 | Graph / Node / Action、唯一 ActionExecutor、Evidence、workflow run |
 | Phase 2 · 选择性确认 | 已完成 | 输入预览、原文先保存、逐条修改/接受/拒绝、依赖清理 |
-| Phase 3 · 真正的 AI extraction | 未开始 | 当前仍使用可预测的本地 extraction adapter |
+| Phase 3 · 真正的 AI extraction | 已完成 | OpenAI Structured Outputs、严格 schema、Concept 去重、state signals、trace 与本地 fallback |
 | Phase 4 · 持久化与检索 | 未开始 | 当前数据仍为进程内存 |
 | Phase 5 · 复杂编排 | 按需评估 | 暂不引入 LangGraph |
 
@@ -183,10 +183,21 @@ Knowledge Identity Chat 不把全部历史塞给模型。每次回答只组装�
 
 ### Phase 3 · 真正的 AI extraction
 
-- 接入模型并使用严格 output schema
-- 增加 Concept 去重与 Relation 判断
-- 建立可评估的 Knowledge State signals
-- 记录 prompt、模型版本与 extraction trace
+- [x] 接入 OpenAI Responses API，并用 Pydantic schema 解析 Structured Output
+- [x] 增加 Concept 去重与有证据的 Relation 判断
+- [x] 建立 `mention / explanation / application / reflection` Knowledge State signals
+- [x] 记录 provider、prompt/version、模型、response ID、耗时与 fallback 原因
+- [x] 默认保持本地处理；只有显式开启环境变量时才向外部模型发送内容
+
+### 极简 Capture 入口
+
+首页只要求用户完成一个动作：把内容放进同一个输入框。用户不需要预先选择分类、文件夹或工作流。
+
+- 文字、链接和问题直接输入；`Cmd/Ctrl + Enter` 快速提交。
+- 浏览器支持时，语音按钮把讲话实时转写回同一个输入框。
+- 附件支持选择和拖放；文本类附件内容参与 extraction，其他附件先保留名称、类型和大小。
+- 输入类型根据内容自动判断，不向用户展示额外表单。
+- AI 的结构化理解仍进入同一个 review panel，原始 Input 会先保留。
 
 ### Phase 4 · 持久化与检索
 
