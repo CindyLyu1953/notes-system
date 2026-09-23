@@ -21,6 +21,7 @@ The frontend attempts to use the local API at `http://127.0.0.1:8000`. If it is 
 ## Product surface
 
 - Free-form capture that organizes input into concepts and evidence-backed notes
+- Review AI-proposed concepts and connections before they change the identity
 - Living knowledge graph and knowledge-state overview
 - Weekly growth recap and next-knowledge recommendation
 - Grounded chat over the user's knowledge identity

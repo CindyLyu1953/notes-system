@@ -4,6 +4,16 @@
 > 目标：把用户的自由输入变成可追溯、可纠错、会随时间成长的 Knowledge Identity。  
 > 原则：借鉴 Alfred 的清晰分层，不复制其多领域 Personal OS 的复杂度。
 
+## 当前实施状态
+
+| 阶段 | 状态 | 已完成 |
+|---|---|---|
+| Phase 1 · 可审计写入路径 | 已完成 | Graph / Node / Action、唯一 ActionExecutor、Evidence、workflow run |
+| Phase 2 · 选择性确认 | 已完成第一版 | 输入预览、原文先保存、接受并组织、拒绝并保留原文 |
+| Phase 3 · 真正的 AI extraction | 未开始 | 当前仍使用可预测的本地 extraction adapter |
+| Phase 4 · 持久化与检索 | 未开始 | 当前数据仍为进程内存 |
+| Phase 5 · 复杂编排 | 按需评估 | 暂不引入 LangGraph |
+
 ## 一句话版本
 
 用户自由输入，AI 提取结构化理解并提出一组修改；系统只通过统一的 Action 执行这些修改，所有结果都保留来源，重要或低置信修改先让用户确认。
@@ -164,9 +174,11 @@ Knowledge Identity Chat 不把全部历史塞给模型。每次回答只组装�
 
 ### Phase 2 · 选择性确认
 
-- 增加 pending Action 预览
-- 为高风险与低置信 Action 增加确认 / 修改 / 拒绝
-- 前端展示“AI 准备如何理解这条输入”
+- [x] 增加 pending Action 预览
+- [x] 增加整次理解的接受 / 拒绝
+- [x] 前端展示“AI 准备如何理解这条输入”
+- [ ] 支持逐条修改 Concept / Relation proposal
+- [ ] 支持逐条接受或拒绝 Action
 
 ### Phase 3 · 真正的 AI extraction
 
@@ -207,4 +219,3 @@ Knowledge Identity Chat 不把全部历史塞给模型。每次回答只组装�
 - [Alfred Event / Fact 双真相](https://gavin-op.github.io/alfred-api/adr/0010-event-fact-dual-truth/)
 - [Alfred LangGraph 编排决策](https://gavin-op.github.io/alfred-api/adr/0012-orchestration-langgraph/)
 - [Alfred 上下文分段](https://gavin-op.github.io/alfred-api/adr/0013-context-segments/)
-
