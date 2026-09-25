@@ -34,6 +34,8 @@ Current Actions are `record_input`, `upsert_concept`, `upsert_relation`, `set_kn
 
 Each workflow records provider, model, prompt version, response ID, latency and fallback reason. Concept matching uses existing names; Relations require textual support; state changes use observable `mention`, `explanation`, `application` or `reflection` signals.
 
+For substantive documents, extraction scans the complete source and may propose up to 12 Concepts. Selection favors durable knowledge topics, named methods/frameworks, professional responsibilities and transferable skills across distinct sections. Names use the most informative supported granularity (`Project management`, not `Project`; `Program management`, not `Program`), and generic/specific duplicates are prohibited. The source still controls coverage: 6-12 is a target only when the evidence contains that many distinct major topics.
+
 Document extraction uses the shared OpenAI timeout and up to `AI_EXTRACTION_MAX_ATTEMPTS`. A retry reuses the original Input and workflow, so it cannot duplicate the uploaded source. Keyword fallback is intentionally prohibited for attachments because a plausible-looking wrong Concept is less trustworthy than an explicit failure.
 
 ## Evidence and truth model
