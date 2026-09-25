@@ -18,5 +18,6 @@ export const emptyIdentity = {
     reason: "There is not enough evidence to recommend a next concept yet.",
     bridge_from: [],
     first_step: "Capture one thing you learned, questioned, or tried today.",
+    evidence_input_ids: [],
   },
 };

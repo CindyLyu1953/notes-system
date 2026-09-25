@@ -33,6 +33,7 @@ Open <http://localhost:5173/notes-system/>. No sign-in is required. Vite proxies
 5. [Real-world inputs](./05-real-world-inputs-plan.md) — implemented PDF/text slice and next adapters.
 6. [UI information architecture](./06-ui-information-architecture.md) — page ownership and navigation rules.
 7. [Media ingestion and deployment](./07-media-ingestion-and-deployment.md) — OCR, transcription, S3, queue, worker.
+8. [Knowledge intelligence](./08-knowledge-intelligence.md) — grounded generation, citation validation, recommendations, evals.
 
 Product language lives in [`CONTEXT.md`](../../CONTEXT.md); the rationale for the write path lives in [ADR-0001](../adr/0001-evidence-first-action-pipeline.md).
 
@@ -52,6 +53,7 @@ Product language lives in [`CONTEXT.md`](../../CONTEXT.md); the rationale for th
 | Capture UI or review experience | `frontend: src/features/knowledgeIdentity/KnowledgeIdentityPrototype.jsx` |
 | Browser/API contract | `frontend: src/features/knowledgeIdentity/api.js` and `backend: src/backend/api/routes/knowledge_identity.py` |
 | AI interpretation | `backend: src/backend/app/ai_extraction.py` |
+| Answers, recaps, and recommendations | `backend: src/backend/app/knowledge_intelligence.py` |
 | Workflow order or write rules | `backend: src/backend/app/knowledge_workflow.py` |
 | Product-level behavior | `backend: src/backend/app/knowledge_identity.py` |
 | Storage/search implementation | `backend: src/backend/infrastructure/postgres_repository.py` |

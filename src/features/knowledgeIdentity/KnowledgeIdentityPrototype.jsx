@@ -28,6 +28,11 @@ function Evidence({ ids }) {
   return <span className="evidence"><Icon name="evidence" size={14}/>{ids.length} source{ids.length === 1 ? "" : "s"}</span>;
 }
 
+function EvidenceDetails({ items }) {
+  if (!items?.length) return null;
+  return <details className="evidence-details"><summary><Evidence ids={items.map((item) => item.input_id)}/> View citations</summary><ol>{items.map((item) => <li key={`${item.input_id}-${item.segment_id || "input"}`}><span>{item.locator || "Captured input"}</span><p>{item.excerpt}</p></li>)}</ol></details>;
+}
+
 function Composer({ onSubmit, busy }) {
   const [content, setContent] = useState("");
   const [attachments, setAttachments] = useState([]);
@@ -194,7 +199,7 @@ function Graph({ identity }) {
 }
 
 function Recommendation({ item }) {
-  return <article className="recommendation"><span className="eyebrow">Just beyond your edge</span><h3>{item.concept}</h3><p>{item.reason}</p>{item.bridge_from.length ? <div className="bridge">Bridge from {item.bridge_from.slice(0, 2).join(" + ")}</div> : null}<button type="button">{item.first_step}<Icon name="arrow" size={17}/></button></article>;
+  return <article className="recommendation"><span className="eyebrow">Just beyond your edge</span><h3>{item.concept}</h3><p>{item.reason}</p>{item.evidence_input_ids?.length ? <Evidence ids={item.evidence_input_ids}/> : null}{item.bridge_from.length ? <div className="bridge">Bridge from {item.bridge_from.slice(0, 2).join(" + ")}</div> : null}<button type="button">{item.first_step}<Icon name="arrow" size={17}/></button></article>;
 }
 
 function ReviewPanel({ run, busy, onAccept, onReject }) {
@@ -222,7 +227,7 @@ function ReviewPanel({ run, busy, onAccept, onReject }) {
 function Chat({ onChat, messages, busy }) {
   const [value, setValue] = useState("");
   const submit = async (event) => { event.preventDefault(); if (!value.trim()) return; const message = value.trim(); setValue(""); await onChat(message); };
-  return <section className="chat" id="ask"><div className="section-title"><span><Icon name="chat"/>Ask your knowledge</span><small>Answers cite your evidence</small></div><div className="chat__messages">{messages.map((item, index) => <div className={`message message--${item.role}`} key={`${item.role}-${index}`}>{item.content}{item.evidence?.length ? <Evidence ids={item.evidence.map((e) => e.input_id)}/> : null}</div>)}</div><form onSubmit={submit}><label className="sr-only" htmlFor="knowledge-question">Ask your knowledge identity</label><input id="knowledge-question" value={value} onChange={(event) => setValue(event.target.value)} placeholder="What do I actually know about RAG?"/><button type="submit" disabled={busy || !value.trim()} aria-label="Send question"><Icon name="arrow"/></button></form></section>;
+  return <section className="chat" id="ask"><div className="section-title"><span><Icon name="chat"/>Ask your knowledge</span><small>Answers cite your evidence</small></div><div className="chat__messages">{messages.map((item, index) => <div className={`message message--${item.role}`} key={`${item.role}-${index}`}>{item.content}<EvidenceDetails items={item.evidence}/></div>)}</div><form onSubmit={submit}><label className="sr-only" htmlFor="knowledge-question">Ask your knowledge identity</label><input id="knowledge-question" value={value} onChange={(event) => setValue(event.target.value)} placeholder="What do I actually know about RAG?"/><button type="submit" disabled={busy || !value.trim()} aria-label="Send question"><Icon name="arrow"/></button></form></section>;
 }
 
 const pages = [

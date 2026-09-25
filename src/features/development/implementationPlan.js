@@ -34,12 +34,12 @@ export const implementationPhases = [
   },
   {
     title: "Knowledge intelligence",
-    status: "planned",
+    status: "complete",
     items: [
-      ["next", "Retrieval-grounded LLM answers with source citations"],
-      ["next", "Evidence-backed weekly recap generation"],
-      ["next", "Personalized Next Knowledge recommendations"],
-      ["next", "Extraction and retrieval evaluation suite"],
+      ["complete", "Retrieval-grounded LLM answers with source citations"],
+      ["complete", "Evidence-backed week, month, and year recap generation"],
+      ["complete", "Personalized Next Knowledge recommendations"],
+      ["complete", "Extraction and retrieval evaluation suite"],
     ],
   },
   {
