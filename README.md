@@ -24,6 +24,8 @@ In local development, Vite proxies same-origin `/api` requests to `http://127.0.
 - One effortless capture box for text, links, voice transcription, drag-and-drop, and file selection
 - Real PDF/TXT/Markdown upload with immutable local storage, extraction status, retry, and page/section provenance
 - Public URL capture with cleaned article text, immutable snapshots, and SSRF/size/timeout controls
+- Image OCR and timestamped audio transcription with source-level Evidence
+- Deployable S3-compatible artifacts, PostgreSQL job queue, retries, and standalone worker
 - Separate deep-linkable Capture, Identity, Next, and Growth pages; Growth supports week/month/year windows
 - Automatic input-type inference instead of asking the user to organize before capture
 - Edit or reject individual AI-proposed concepts, states, and connections before they change the identity

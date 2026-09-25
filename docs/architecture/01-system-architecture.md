@@ -27,7 +27,9 @@ ActionExecutor         └─ PostgreSQL + pgvector adapter
 | AI | OpenAI Responses API, structured output | Optional concept/relation/state proposals |
 | Data | PostgreSQL 16, psycopg 3 | Durable state and full-text search |
 | Semantic retrieval | pgvector, `text-embedding-3-small` | 1536-dimensional vectors and cosine search |
-| Source ingestion | FastAPI multipart, urllib, HTMLParser, pypdf | Immutable file/web intake and normalized extraction |
+| Source ingestion | FastAPI multipart, urllib, HTMLParser, pypdf | Immutable file/web/media intake and normalized extraction |
+| Media AI | OpenAI vision, Whisper transcription | OCR regions and timestamped audio Evidence |
+| Deployment ingestion | S3-compatible storage, PostgreSQL queue | Durable artifacts and out-of-process jobs |
 | Tests | Python `unittest`, ESLint, Vite build | Behavior, integration and static verification |
 
 ## Modules and seams
@@ -43,6 +45,9 @@ A **module** hides implementation behind a small **interface**. A **seam** is wh
 | Embeddings | embedding provider | OpenAI embedding adapter |
 | Source artifacts | `ArtifactStore.create/get/read_bytes/update` | Memory test adapter, local filesystem adapter |
 | Web fetch | `WebFetcher.fetch` | SSRF-controlled HTTP adapter, fake test adapter |
+| Image OCR | `ImageTextExtractor.extract` | OpenAI vision, missing-config fail-closed adapter, fake test adapter |
+| Audio transcription | `AudioTranscriber.transcribe` | OpenAI Whisper, missing-config fail-closed adapter, fake test adapter |
+| Ingestion jobs | `IngestionJobs.enqueue/claim/complete/fail` | PostgreSQL durable queue |
 
 Keep these interfaces small. Provider SDKs, SQL and model prompting belong behind adapters; product rules belong in the application/workflow modules. This creates depth: callers see a simple operation while retries, validation, ranking and persistence remain hidden.
 

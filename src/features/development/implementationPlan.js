@@ -21,15 +21,15 @@ export const implementationPhases = [
   },
   {
     title: "Real-world inputs",
-    status: "in-progress",
+    status: "complete",
     items: [
       ["complete", "Persist immutable PDF, TXT, and Markdown source artifacts"],
       ["complete", "Extract text with page or section-level evidence locators"],
       ["complete", "Show upload, extraction, failure, and retry states"],
       ["complete", "Fetch and clean public web links with SSRF controls"],
-      ["next", "OCR screenshots and images"],
-      ["next", "Durable audio upload and transcription"],
-      ["next", "Replace local artifact and in-process job adapters for deployment"],
+      ["complete", "OCR screenshots and images with region Evidence"],
+      ["complete", "Durable audio upload and timestamped transcription"],
+      ["complete", "S3-compatible artifacts, PostgreSQL jobs, and standalone worker"],
     ],
   },
   {

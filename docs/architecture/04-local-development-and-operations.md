@@ -29,6 +29,7 @@ Open the app at <http://localhost:5173/notes-system/> and API docs at <http://12
 ```bash
 # Backend unit tests
 .venv/bin/python -m unittest tests.test_artifact_ingestion tests.test_web_ingestion \
+  tests.test_media_extraction tests.test_s3_artifact_store \
   tests.test_knowledge_identity tests.test_embeddings
 
 # Real PostgreSQL hybrid-search integration
@@ -59,6 +60,18 @@ Real-world input controls:
 | `ARTIFACT_MAX_BYTES` | 10 MB | Uploaded file limit |
 | `WEB_FETCH_MAX_BYTES` | 2 MB | Maximum downloaded URL response |
 | `WEB_FETCH_TIMEOUT_SECONDS` | 12 | Per-request URL fetch timeout |
+| `MEDIA_EXTRACTION_ENABLED` | `false` | Opt in to external OCR and transcription |
+| `ARTIFACT_STORE` | `local` | Use `s3` in deployment |
+| `INGESTION_QUEUE` | `local` | Use `postgres` with a standalone worker |
+
+Deployment worker:
+
+```bash
+ARTIFACT_STORE=s3 INGESTION_QUEUE=postgres \
+  PYTHONPATH=. .venv/bin/python scripts/run_ingestion_worker.py
+```
+
+The API and worker must share `DATABASE_URL`, S3 settings, media provider settings and encryption credentials.
 
 ## Fast diagnosis
 
@@ -71,5 +84,7 @@ Real-world input controls:
 | AI uses local fallback | workflow trace: provider, fallback reason, timeout/schema failure |
 | CORS failure | add exact frontend origin to `CORS_ALLOW_ORIGINS`; never use `*` |
 | URL capture is rejected | Only public HTTP(S) HTML/text is allowed; private/local targets are blocked |
+| Image/audio extraction fails | Enable `MEDIA_EXTRACTION_ENABLED` and provide `OPENAI_API_KEY` |
+| Artifact stays queued in deployment | Confirm the standalone worker is running and uses the same database/bucket |
 
 Start debugging at the boundary nearest the symptom: browser network → FastAPI route → application module → repository/provider adapter. Do not patch around an adapter failure in UI code.

@@ -1,6 +1,6 @@
 # Real-world Inputs
 
-> Status: PDF/TXT/Markdown and public URL slices implemented locally. OCR, audio and production infrastructure remain planned.
+> Status: PDF/TXT/Markdown, public URL, OCR, audio and deployable ingestion adapters implemented.
 
 ## Recommendation
 
@@ -10,8 +10,8 @@ Deliver in this order:
 
 1. PDF and plain-text documents.
 2. Web URLs. ✓
-3. Images with OCR.
-4. Audio with transcription.
+3. Images with OCR. ✓
+4. Audio with transcription. ✓
 
 PDF/text proves the common ingestion contract with the lowest operational risk. URL ingestion adds SSRF and content volatility; OCR and audio add cost, quality and long-running jobs.
 
@@ -52,9 +52,9 @@ Normalized output should contain:
 ## Module boundaries
 
 - **Intake module:** validates type/size, creates artifact and job; does not parse content.
-- **Artifact adapter:** local filesystem for development, object storage for deployment.
-- **Extractor adapters:** PDF, HTML, OCR and transcription behind one interface.
-- **Job adapter:** in-process worker for the first local slice, durable queue before production.
+- **Artifact adapter:** local filesystem for development, S3-compatible object storage for deployment.
+- **Extractor adapters:** PDF, HTML, OpenAI vision OCR and Whisper transcription behind small interfaces.
+- **Job adapter:** FastAPI background tasks locally; PostgreSQL queue plus standalone worker in deployment.
 - **Normalizer:** creates stable text/segments and Evidence anchors.
 - **Existing workflow:** proposes Concepts/Relations/States from normalized evidence.
 
@@ -78,7 +78,7 @@ Normalized output should contain:
 - [x] Server-side attachment hydration and page/section Evidence references.
 - [x] Upload/extraction/failure/retry states in the existing capture box.
 - [ ] Independent chunk-level search documents and embeddings for whole source files.
-- [ ] Durable queue/worker; current FastAPI background task survives browser navigation but not process failure.
+- [x] PostgreSQL durable queue and standalone worker with retry/stale-lock recovery.
 
 ## Implemented slice: public URLs
 
@@ -101,4 +101,4 @@ Normalized output should contain:
 
 ## Decisions to make before production
 
-Choose object storage, durable job queue, OCR/transcription providers, retention policy, encryption/key management and tenant quotas. These are adapter decisions; the normalized evidence contract should remain stable.
+Provision an S3-compatible bucket and worker runtime; decide retention policy, encryption/key management, malware scanning and tenant quotas. The adapters are implemented, but infrastructure credentials and policies remain deployment-specific.

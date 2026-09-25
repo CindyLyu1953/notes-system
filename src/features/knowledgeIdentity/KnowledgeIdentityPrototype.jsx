@@ -76,12 +76,12 @@ function Composer({ onSubmit, busy }) {
     const files = Array.from(fileList).slice(0, available);
     const accepted = [];
     for (const file of files) {
-      if (file.size > 10_485_760) {
-        setNotice(`${file.name} is larger than 10 MB.`);
+      if (file.size > 26_214_400) {
+        setNotice(`${file.name} is larger than 25 MB.`);
         continue;
       }
-      if (!/\.(pdf|txt|md)$/i.test(file.name)) {
-        setNotice(`${file.name} is not supported yet. Add a PDF, TXT, or Markdown file.`);
+      if (!/\.(pdf|txt|md|png|jpe?g|webp|gif|flac|mp3|mp4|mpeg|mpga|m4a|ogg|wav|webm)$/i.test(file.name)) {
+        setNotice(`${file.name} is not supported. Add a document, image, or audio recording.`);
         continue;
       }
       const temporaryId = `${file.name}-${file.lastModified}-${file.size}`;
@@ -150,7 +150,7 @@ function Composer({ onSubmit, busy }) {
       if (!ready) return;
       submittedAttachments = [ready];
     }
-    const sourceType = voiceUsed ? "voice" : attachments.some((item) => item.mime_type.startsWith("image/")) ? "screenshot" : attachments.length ? "note" : /^https?:\/\//i.test(text) ? "link" : /\?\s*$/.test(text) ? "question" : "thought";
+    const sourceType = voiceUsed || submittedAttachments.some((item) => (item.media_type || item.mime_type || "").startsWith("audio/")) ? "voice" : submittedAttachments.some((item) => (item.media_type || item.mime_type || "").startsWith("image/")) ? "screenshot" : submittedAttachments.length ? "note" : /^https?:\/\//i.test(text) ? "link" : /\?\s*$/.test(text) ? "question" : "thought";
     const saved = await onSubmit({
       content: text,
       source_type: sourceType,
@@ -170,7 +170,7 @@ function Composer({ onSubmit, busy }) {
       {attachments.length ? <div className="composer__attachments">{attachments.map((file) => <span className={`attachment attachment--${file.status}`} key={file.id}><Icon name="paperclip" size={14}/><span>{file.name}<small>{file.status === "ready" ? `${file.segments?.length || 0} source ${file.segments?.length === 1 ? "segment" : "segments"}` : file.status === "failed" ? file.error || "Extraction failed" : file.status === "uploading" ? "Uploading…" : "Extracting…"}</small></span>{file.status === "failed" && file.id?.startsWith("artifact-") ? <button className="attachment__retry" type="button" onClick={() => retryFile(file)}>Retry</button> : null}<button type="button" onClick={() => setAttachments((current) => current.filter((item) => item.id !== file.id))} aria-label={`Remove ${file.name}`}><Icon name="close" size={14}/></button></span>)}</div> : null}
       <div className="composer__controls">
         <div className="composer__tools">
-          <input ref={fileInputRef} className="sr-only" type="file" multiple accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown" onChange={async (event) => { await addFiles(event.target.files); event.target.value = ""; }} />
+          <input ref={fileInputRef} className="sr-only" type="file" multiple accept=".pdf,.txt,.md,image/png,image/jpeg,image/webp,image/gif,audio/*,.mp4,.webm" onChange={async (event) => { await addFiles(event.target.files); event.target.value = ""; }} />
           <button className="composer__icon-button" type="button" onClick={() => fileInputRef.current?.click()} aria-label="Attach files" title="Attach files"><Icon name="paperclip"/></button>
           <button className={`composer__icon-button ${listening ? "is-active" : ""}`} type="button" onClick={toggleVoice} aria-label={listening ? "Stop voice input" : "Start voice input"} aria-pressed={listening} title="Voice input"><Icon name="mic"/></button>
           <span className="composer__hint">{notice || "Type, speak, or attach — no organizing required"}</span>
