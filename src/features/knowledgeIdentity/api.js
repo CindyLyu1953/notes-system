@@ -47,3 +47,5 @@ export const identityApi = {
   exportBackup: () => request("/backup"),
   restoreBackup: (backup) => request("/restore", { method: "POST", body: JSON.stringify(backup) }),
 };
+
+export const artifactContentUrl = (artifactId) => `${root}/artifacts/${encodeURIComponent(artifactId)}/content`;
