@@ -38,4 +38,11 @@ export const identityApi = {
   },
   getArtifact: (artifactId) => request(`/artifacts/${artifactId}`),
   retryArtifact: (artifactId) => request(`/artifacts/${artifactId}/retry`, { method: "POST" }),
+  updateInput: (inputId, payload) => request(`/inputs/${inputId}`, { method: "PUT", body: JSON.stringify(payload) }),
+  updateNote: (noteId, payload) => request(`/notes/${noteId}`, { method: "PUT", body: JSON.stringify(payload) }),
+  updateConcept: (conceptId, payload) => request(`/concepts/${conceptId}`, { method: "PUT", body: JSON.stringify(payload) }),
+  mergeConcepts: (sourceId, targetId) => request("/concepts/merge", { method: "POST", body: JSON.stringify({ source_id: sourceId, target_id: targetId }) }),
+  undo: () => request("/undo", { method: "POST" }),
+  exportBackup: () => request("/backup"),
+  restoreBackup: (backup) => request("/restore", { method: "POST", body: JSON.stringify(backup) }),
 };

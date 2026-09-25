@@ -27,7 +27,7 @@ export function ImplementationPlan() {
             <ul>
               {phase.items.map(([status, label]) => (
                 <li className={`plan-item plan-item--${status}`} key={label}>
-                  <i aria-hidden="true">{status === "complete" ? "✓" : "·"}</i>
+                  <i aria-hidden="true">{status === "complete" ? "✓" : status === "setup" ? "→" : "·"}</i>
                   <span>{label}</span>
                 </li>
               ))}

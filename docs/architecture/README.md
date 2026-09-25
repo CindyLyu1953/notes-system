@@ -34,6 +34,7 @@ Open <http://localhost:5173/notes-system/>. No sign-in is required. Vite proxies
 6. [UI information architecture](./06-ui-information-architecture.md) — page ownership and navigation rules.
 7. [Media ingestion and deployment](./07-media-ingestion-and-deployment.md) — OCR, transcription, S3, queue, worker.
 8. [Knowledge intelligence](./08-knowledge-intelligence.md) — grounded generation, citation validation, recommendations, evals.
+9. [User control and launch safeguards](./09-control-and-safeguards.md) — editing, backup, undo, health, limits, and remaining auth work.
 
 Product language lives in [`CONTEXT.md`](../../CONTEXT.md); the rationale for the write path lives in [ADR-0001](../adr/0001-evidence-first-action-pipeline.md).
 
@@ -58,5 +59,6 @@ Product language lives in [`CONTEXT.md`](../../CONTEXT.md); the rationale for th
 | Product-level behavior | `backend: src/backend/app/knowledge_identity.py` |
 | Storage/search implementation | `backend: src/backend/infrastructure/postgres_repository.py` |
 | Public data shapes | `backend: src/backend/schemas/knowledge_identity.py` |
+| User review, edit, and backup UI | `frontend: src/features/knowledgeIdentity/KnowledgeIdentityPrototype.jsx` |
 
 `frontend:` means `notes-system`; `backend:` means `notes-system-backend`.

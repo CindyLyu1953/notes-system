@@ -44,21 +44,22 @@ export const implementationPhases = [
   },
   {
     title: "Control & trust",
-    status: "planned",
+    status: "in-progress",
     items: [
-      ["next", "Input, note, and concept detail views"],
-      ["next", "Edit, merge, delete, and undo"],
-      ["next", "Import, export, backup, and restore"],
+      ["complete", "Input, note, and concept detail views"],
+      ["complete", "Edit, merge, and session undo"],
+      ["complete", "JSON export, backup, and restore"],
+      ["setup", "Authenticated archive, recycle bin, and permanent deletion"],
     ],
   },
   {
     title: "Launch readiness",
     status: "planned",
     items: [
-      ["next", "Authentication and per-user data isolation"],
-      ["next", "Hosted frontend, API, database, secrets, and CORS"],
-      ["next", "Monitoring, rate limits, cost controls, and CI/CD"],
-      ["next", "Privacy, retention, and account deletion flows"],
+      ["setup", "Choose authentication provider and enable per-user data isolation"],
+      ["setup", "Deploy frontend, API, database, secrets, and production CORS"],
+      ["complete", "Health checks, request limits, cost caps, and CI quality gates"],
+      ["setup", "Authenticated retention and account deletion flows"],
     ],
   },
 ];
