@@ -27,7 +27,7 @@ ActionExecutor         └─ PostgreSQL + pgvector adapter
 | AI | OpenAI Responses API, structured output | Optional concept/relation/state proposals |
 | Data | PostgreSQL 16, psycopg 3 | Durable state and full-text search |
 | Semantic retrieval | pgvector, `text-embedding-3-small` | 1536-dimensional vectors and cosine search |
-| Document ingestion | FastAPI multipart, pypdf | Immutable intake and PDF/TXT/Markdown extraction |
+| Source ingestion | FastAPI multipart, urllib, HTMLParser, pypdf | Immutable file/web intake and normalized extraction |
 | Tests | Python `unittest`, ESLint, Vite build | Behavior, integration and static verification |
 
 ## Modules and seams
@@ -42,6 +42,7 @@ A **module** hides implementation behind a small **interface**. A **seam** is wh
 | Writes | `KnowledgeWriteStore` | `KnowledgeIdentityPrototype` |
 | Embeddings | embedding provider | OpenAI embedding adapter |
 | Source artifacts | `ArtifactStore.create/get/read_bytes/update` | Memory test adapter, local filesystem adapter |
+| Web fetch | `WebFetcher.fetch` | SSRF-controlled HTTP adapter, fake test adapter |
 
 Keep these interfaces small. Provider SDKs, SQL and model prompting belong behind adapters; product rules belong in the application/workflow modules. This creates depth: callers see a simple operation while retries, validation, ranking and persistence remain hidden.
 
@@ -56,7 +57,7 @@ Keep these interfaces small. Provider SDKs, SQL and model prompting belong behin
 7. The repository saves a snapshot and refreshes search documents/embeddings.
 8. Identity, recap, recommendation, search and chat read the resulting state.
 
-Real files enter through a separate intake seam: multipart upload → immutable artifact bytes → background extraction → normalized segments → trusted attachment hydration → the same Capture workflow above.
+Files and public URLs enter through separate intake adapters, then converge: immutable artifact bytes → background extraction → normalized segments → trusted attachment hydration → the same Capture workflow above.
 
 ## Repository map
 

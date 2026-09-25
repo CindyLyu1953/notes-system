@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ImplementationPlan } from "../development/ImplementationPlan.jsx";
 import { identityApi } from "./api.js";
 import { emptyIdentity } from "./emptyIdentity.js";
@@ -55,6 +55,19 @@ function Composer({ onSubmit, busy }) {
       await waitForArtifact(queued.id);
     } catch (error) {
       setAttachments((current) => current.map((item) => item.id === temporaryId || item.temporaryId === temporaryId ? { ...item, status: "failed", error: error.message } : item));
+    }
+  };
+
+  const captureUrl = async (url) => {
+    const temporaryId = `url-${Date.now()}`;
+    setAttachments((current) => [...current, { id: temporaryId, temporaryId, name: url, mime_type: "text/html", size: 0, status: "uploading", source_uri: url }]);
+    try {
+      const queued = await identityApi.captureWebSource(url);
+      setAttachments((current) => current.map((item) => item.id === temporaryId ? { ...item, ...queued, temporaryId } : item));
+      return await waitForArtifact(queued.id);
+    } catch (error) {
+      setAttachments((current) => current.map((item) => item.id === temporaryId || item.temporaryId === temporaryId ? { ...item, status: "failed", error: error.message } : item));
+      return null;
     }
   };
 
@@ -131,12 +144,18 @@ function Composer({ onSubmit, busy }) {
     if (attachments.some((item) => item.status !== "ready")) return;
     if (content.trim().length < 3 && attachments.length === 0) return;
     const text = content.trim() || `Attached: ${attachments.map((item) => item.name).join(", ")}`;
+    let submittedAttachments = attachments;
+    if (/^https?:\/\/\S+$/i.test(text) && attachments.length === 0) {
+      const ready = await captureUrl(text);
+      if (!ready) return;
+      submittedAttachments = [ready];
+    }
     const sourceType = voiceUsed ? "voice" : attachments.some((item) => item.mime_type.startsWith("image/")) ? "screenshot" : attachments.length ? "note" : /^https?:\/\//i.test(text) ? "link" : /\?\s*$/.test(text) ? "question" : "thought";
     const saved = await onSubmit({
       content: text,
       source_type: sourceType,
       destination: null,
-      attachments: attachments.map((item) => ({ name: item.name, mime_type: item.media_type || item.mime_type, size: item.size, artifact_id: item.id })),
+      attachments: submittedAttachments.map((item) => ({ name: item.name, mime_type: item.media_type || item.mime_type, size: item.size, artifact_id: item.id })),
     });
     if (!saved) return;
     setContent("");
@@ -206,8 +225,31 @@ function Chat({ onChat, messages, busy }) {
   return <section className="chat" id="ask"><div className="section-title"><span><Icon name="chat"/>Ask your knowledge</span><small>Answers cite your evidence</small></div><div className="chat__messages">{messages.map((item, index) => <div className={`message message--${item.role}`} key={`${item.role}-${index}`}>{item.content}{item.evidence?.length ? <Evidence ids={item.evidence.map((e) => e.input_id)}/> : null}</div>)}</div><form onSubmit={submit}><label className="sr-only" htmlFor="knowledge-question">Ask your knowledge identity</label><input id="knowledge-question" value={value} onChange={(event) => setValue(event.target.value)} placeholder="What do I actually know about RAG?"/><button type="submit" disabled={busy || !value.trim()} aria-label="Send question"><Icon name="arrow"/></button></form></section>;
 }
 
-function AppHeader({ mode }) {
-  return <header className="app-topbar"><a className="brand" href="#today"><span className="brand__logo">KI</span><span className="brand__name">Knowledge Identity</span></a><div className="topbar-tools"><span className="connection"><i className={`mode-dot mode-dot--${mode}`}/>{mode === "api" ? "Synced" : mode === "loading" ? "Connecting" : "Backend offline"}</span><a className="identity-link" href="#build-plan">Build plan</a><a className="identity-link" href="#identity">View identity</a></div></header>;
+const pages = [
+  ["capture", "Capture"],
+  ["identity", "Identity"],
+  ["next", "Next"],
+  ["growth", "Growth"],
+];
+
+function AppHeader({ mode, page }) {
+  return <header className="app-topbar"><a className="brand" href="#capture"><span className="brand__logo">KI</span><span className="brand__name">Knowledge Identity</span></a><nav aria-label="Primary navigation">{pages.map(([id, label]) => <a key={id} href={`#${id}`} aria-current={page === id ? "page" : undefined}>{label}</a>)}</nav><div className="topbar-tools"><span className="connection"><i className={`mode-dot mode-dot--${mode}`}/>{mode === "api" ? "Synced" : mode === "loading" ? "Connecting" : "Backend offline"}</span></div></header>;
+}
+
+function PageIntro({ eyebrow, title, description }) {
+  return <header className="page-intro"><span className="eyebrow">{eyebrow}</span><h1>{title}</h1>{description ? <p>{description}</p> : null}</header>;
+}
+
+function IdentityPage({ identity, onChat, messages, chatBusy }) {
+  return <section className="app-page"><PageIntro eyebrow="Your knowledge, reflected back" title="Your living knowledge" description="Explore the concepts you are building, the evidence behind them, and the questions your own knowledge can answer."/><section className="dashboard dashboard--identity"><div className="dashboard__main"><section className="panel identity-panel"><div className="section-title"><span><Icon name="graph"/>Your living knowledge</span><small>{identity.concepts.length} concepts · {identity.relations.length} connections</small></div><Graph identity={identity}/></section></div><aside className="dashboard__side"><section className="panel"><div className="section-title"><span>Knowledge state</span><small>Live</small></div><ConceptList concepts={identity.concepts}/></section><Chat onChat={onChat} messages={messages} busy={chatBusy}/></aside></section></section>;
+}
+
+function NextPage({ recommendation }) {
+  return <section className="app-page app-page--focused"><PageIntro eyebrow="Just beyond your edge" title="One useful direction, not another list" description="A next step grounded in the concepts and evidence already present in your Knowledge Identity."/><Recommendation item={recommendation}/></section>;
+}
+
+function GrowthPage({ recap, period, onPeriodChange, loading }) {
+  return <section className="app-page app-page--focused"><PageIntro eyebrow="Growth over time" title="See how your understanding is changing" description="Switch the window without losing the evidence behind the summary."/><div className="period-switcher" role="group" aria-label="Growth period">{["week", "month", "year"].map((value) => <button key={value} type="button" className={period === value ? "is-active" : ""} aria-pressed={period === value} onClick={() => onPeriodChange(value)}>{value[0].toUpperCase() + value.slice(1)}</button>)}</div><section className={`panel recap growth-recap ${loading ? "is-loading" : ""}`} aria-live="polite"><span className="eyebrow">This {period}</span><h2>{loading ? "Updating your growth…" : recap.headline}</h2><p>{recap.narrative}</p>{recap.highlights.length ? <ul>{recap.highlights.map((item) => <li key={item}>{item}</li>)}</ul> : null}<Evidence ids={recap.evidence_input_ids}/></section></section>;
 }
 
 export default function KnowledgeIdentityPrototype() {
@@ -218,15 +260,21 @@ export default function KnowledgeIdentityPrototype() {
   const [decisionBusy, setDecisionBusy] = useState(false);
   const [pendingRun, setPendingRun] = useState(null);
   const [chatBusy, setChatBusy] = useState(false);
+  const [page, setPage] = useState(() => pages.some(([id]) => `#${id}` === window.location.hash) ? window.location.hash.slice(1) : "capture");
+  const [growthPeriod, setGrowthPeriod] = useState("week");
+  const [growthRecap, setGrowthRecap] = useState(emptyIdentity.recap);
+  const [growthBusy, setGrowthBusy] = useState(false);
   const [messages, setMessages] = useState([{ role: "assistant", content: "I can reflect what you know, show the evidence behind it, and name the gap at your current edge.", evidence: [] }]);
 
   const loadIdentity = useCallback(async () => { setMode("loading"); setError(""); try { setIdentity(await identityApi.load()); setMode("api"); } catch { setMode("error"); setError("The backend is not reachable. Start it to load or save your knowledge — no demo data has been substituted."); } }, []);
   useEffect(() => { loadIdentity(); }, [loadIdentity]);
+  useEffect(() => { const onHashChange = () => { const next = window.location.hash.slice(1); setPage(pages.some(([id]) => id === next) ? next : "capture"); window.scrollTo({ top: 0, behavior: "smooth" }); }; window.addEventListener("hashchange", onHashChange); if (!window.location.hash) window.history.replaceState(null, "", "#capture"); return () => window.removeEventListener("hashchange", onHashChange); }, []);
+  useEffect(() => { setGrowthRecap(identity.recap); }, [identity.recap]);
+  const changeGrowthPeriod = useCallback(async (period) => { setGrowthPeriod(period); setGrowthBusy(true); try { setGrowthRecap(await identityApi.recap(period)); setMode("api"); } catch { setError("Growth could not be loaded. Please reconnect and try again."); setMode("error"); } finally { setGrowthBusy(false); } }, []);
   const previewInput = useCallback(async (payload) => { setInputBusy(true); setError(""); try { const run = await identityApi.previewInput(payload); setPendingRun(run); setMode("api"); return true; } catch { setMode("error"); setError("This input was not saved because the backend is offline. Your text is still in the composer."); return false; } finally { setInputBusy(false); } }, []);
   const acceptRun = useCallback(async (decisions = []) => { if (!pendingRun) return; setDecisionBusy(true); setError(""); try { setIdentity(await identityApi.commitWorkflow(pendingRun.id, decisions)); setMode("api"); setPendingRun(null); } catch { setMode("error"); setError("The selected changes could not be saved. Please reconnect and try again."); } finally { setDecisionBusy(false); } }, [pendingRun]);
   const rejectRun = useCallback(async () => { if (!pendingRun) return; setDecisionBusy(true); setError(""); try { setIdentity(await identityApi.rejectWorkflow(pendingRun.id)); setMode("api"); setPendingRun(null); } catch { setMode("error"); setError("The workflow could not be updated. Please reconnect and try again."); } finally { setDecisionBusy(false); } }, [pendingRun]);
   const chat = useCallback(async (message) => { setMessages((items) => [...items, { role: "user", content: message }]); setChatBusy(true); try { const response = await identityApi.chat(message); setMessages((items) => [...items, { role: "assistant", content: response.answer, evidence: response.evidence }]); setMode("api"); } catch { setMessages((items) => [...items, { role: "assistant", content: "I couldn't reach your knowledge store, so I won't invent an answer. Start the backend and try again.", evidence: [] }]); setMode("error"); } finally { setChatBusy(false); } }, []);
-  const counts = useMemo(() => Object.fromEntries(["known", "learning", "aware"].map((state) => [state, identity.concepts.filter((item) => item.state === state).length])), [identity.concepts]);
 
-  return <div className="knowledge-app"><a className="skip-link" href="#main-content">Skip to content</a><AppHeader mode={mode}/><main id="main-content"><section className="capture-home" id="today"><div className="capture-home__intro"><span className="eyebrow">Your mind, without the filing</span><h1>What&apos;s on your mind?</h1><p>Put anything here. We&apos;ll connect the useful parts.</p></div><Composer onSubmit={previewInput} busy={inputBusy}/>{error ? <div className="connection-error" role="alert"><span>{error}</span><button type="button" onClick={loadIdentity}>Retry connection</button></div> : null}</section>{pendingRun ? <ReviewPanel key={pendingRun.id} run={pendingRun} busy={decisionBusy} onAccept={acceptRun} onReject={rejectRun}/> : null}<section className="identity-overview" aria-label="Knowledge identity overview"><div className="identity-overview__heading"><div><span className="eyebrow">Your knowledge, reflected back</span><h2>A living picture of what you know.</h2></div><div className="identity-summary"><span>This week</span><strong>{identity.concepts.length}</strong><small>concepts in motion</small><div><b>{counts.known} known</b><b>{counts.learning} learning</b><b>{counts.aware} aware</b></div></div></div><section className="dashboard"><div className="dashboard__main"><section className="panel identity-panel" id="identity"><div className="section-title"><span><Icon name="graph"/>Your living knowledge</span><small>{identity.concepts.length} concepts · {identity.relations.length} connections</small></div><Graph identity={identity}/></section><section className="panel recap" id="growth"><span className="eyebrow">This week&apos;s growth</span><h2>{identity.recap.headline}</h2><p>{identity.recap.narrative}</p>{identity.recap.highlights.length ? <ul>{identity.recap.highlights.map((item) => <li key={item}>{item}</li>)}</ul> : null}<Evidence ids={identity.recap.evidence_input_ids}/></section></div><aside className="dashboard__side"><Recommendation item={identity.recommendation}/><section className="panel"><div className="section-title"><span>Knowledge state</span><small>Live</small></div><ConceptList concepts={identity.concepts}/></section><Chat onChat={chat} messages={messages} busy={chatBusy}/></aside></section></section><ImplementationPlan/></main><footer><span>Knowledge Identity</span><span>Every conclusion stays connected to its source.</span></footer></div>;
+  return <div className="knowledge-app"><a className="skip-link" href="#main-content">Skip to content</a><AppHeader mode={mode} page={page}/><main id="main-content" tabIndex="-1">{page === "capture" ? <><section className="capture-home"><div className="capture-home__intro"><span className="eyebrow">Your mind, without the filing</span><h1>What&apos;s on your mind?</h1><p>Put anything here. We&apos;ll connect the useful parts.</p></div><Composer onSubmit={previewInput} busy={inputBusy}/>{error ? <div className="connection-error" role="alert"><span>{error}</span><button type="button" onClick={loadIdentity}>Retry connection</button></div> : null}</section>{pendingRun ? <ReviewPanel key={pendingRun.id} run={pendingRun} busy={decisionBusy} onAccept={acceptRun} onReject={rejectRun}/> : null}<ImplementationPlan/></> : null}{page === "identity" ? <IdentityPage identity={identity} onChat={chat} messages={messages} chatBusy={chatBusy}/> : null}{page === "next" ? <NextPage recommendation={identity.recommendation}/> : null}{page === "growth" ? <GrowthPage recap={growthRecap} period={growthPeriod} onPeriodChange={changeGrowthPeriod} loading={growthBusy}/> : null}</main><footer><span>Knowledge Identity</span><span>Every conclusion stays connected to its source.</span></footer></div>;
 }

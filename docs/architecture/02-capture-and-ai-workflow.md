@@ -4,7 +4,7 @@
 
 Capture accepts free text plus lightweight attachment metadata/content. It returns a pending interpretation before derived facts are committed. Raw evidence survives both commit and rejection.
 
-For uploaded PDF/TXT/Markdown files, clients send only `artifact_id` into Capture. The route hydrates filename, size, extracted text and segments from the server-side artifact store; client-supplied extracted content is not trusted.
+For uploaded PDF/TXT/Markdown files and captured URLs, clients send only `artifact_id` into Capture. The route hydrates source metadata, extracted text and segments from the server-side artifact store; client-supplied extracted content is not trusted.
 
 ```text
 capture → preserve Input → extract → propose Actions → review

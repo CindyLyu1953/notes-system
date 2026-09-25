@@ -29,6 +29,8 @@ export const identityApi = {
   commitWorkflow: (runId, decisions = []) => request(`/workflow-runs/${runId}/commit`, { method: "POST", body: JSON.stringify({ decisions }) }),
   rejectWorkflow: (runId) => request(`/workflow-runs/${runId}/reject`, { method: "POST" }),
   chat: (message) => request("/chat", { method: "POST", body: JSON.stringify({ message }) }),
+  recap: (period) => request(`/recap?period=${encodeURIComponent(period)}`),
+  captureWebSource: (url) => request("/web-sources", { method: "POST", body: JSON.stringify({ url }) }),
   uploadArtifact: async (file) => {
     const body = new FormData();
     body.append("file", file);

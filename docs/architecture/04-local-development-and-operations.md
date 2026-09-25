@@ -28,7 +28,8 @@ Open the app at <http://localhost:5173/notes-system/> and API docs at <http://12
 
 ```bash
 # Backend unit tests
-.venv/bin/python -m unittest tests.test_knowledge_identity tests.test_embeddings
+.venv/bin/python -m unittest tests.test_artifact_ingestion tests.test_web_ingestion \
+  tests.test_knowledge_identity tests.test_embeddings
 
 # Real PostgreSQL hybrid-search integration
 TEST_DATABASE_URL=postgresql://lyukexin@127.0.0.1:5432/knowledge_identity_hybrid_test \
@@ -50,6 +51,15 @@ npm run build
 
 AI flags are independent. Enabling either sends the relevant content to the configured external provider.
 
+Real-world input controls:
+
+| Variable | Default | Meaning |
+|---|---:|---|
+| `ARTIFACT_STORAGE_PATH` | `data/backend/source-assets` | Git-ignored raw snapshots and metadata |
+| `ARTIFACT_MAX_BYTES` | 10 MB | Uploaded file limit |
+| `WEB_FETCH_MAX_BYTES` | 2 MB | Maximum downloaded URL response |
+| `WEB_FETCH_TIMEOUT_SECONDS` | 12 | Per-request URL fetch timeout |
+
 ## Fast diagnosis
 
 | Symptom | Check |
@@ -60,5 +70,6 @@ AI flags are independent. Enabling either sends the relevant content to the conf
 | Vector migration fails | pgvector extension availability and PostgreSQL major version |
 | AI uses local fallback | workflow trace: provider, fallback reason, timeout/schema failure |
 | CORS failure | add exact frontend origin to `CORS_ALLOW_ORIGINS`; never use `*` |
+| URL capture is rejected | Only public HTTP(S) HTML/text is allowed; private/local targets are blocked |
 
 Start debugging at the boundary nearest the symptom: browser network → FastAPI route → application module → repository/provider adapter. Do not patch around an adapter failure in UI code.

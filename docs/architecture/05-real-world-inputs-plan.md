@@ -1,6 +1,6 @@
 # Real-world Inputs
 
-> Status: PDF/TXT/Markdown slice implemented locally. URL, OCR, audio and production infrastructure remain planned.
+> Status: PDF/TXT/Markdown and public URL slices implemented locally. OCR, audio and production infrastructure remain planned.
 
 ## Recommendation
 
@@ -9,7 +9,7 @@ Yes—this should be the next phase. Capture, review, durable storage and retrie
 Deliver in this order:
 
 1. PDF and plain-text documents.
-2. Web URLs.
+2. Web URLs. ✓
 3. Images with OCR.
 4. Audio with transcription.
 
@@ -79,6 +79,15 @@ Normalized output should contain:
 - [x] Upload/extraction/failure/retry states in the existing capture box.
 - [ ] Independent chunk-level search documents and embeddings for whole source files.
 - [ ] Durable queue/worker; current FastAPI background task survives browser navigation but not process failure.
+
+## Implemented slice: public URLs
+
+- [x] A URL pasted by itself is automatically captured before AI preview.
+- [x] HTTP adapter allows only public HTTP/HTTPS targets and validates every redirect.
+- [x] Private, loopback, link-local and reserved addresses are blocked.
+- [x] Fetch timeout, redirect count, response size and content type are bounded.
+- [x] Navigation/script/style/footer noise is removed; readable blocks become `web section` Evidence.
+- [x] Raw HTML and final redirected URL are retained as immutable provenance.
 
 ## Definition of done
 
