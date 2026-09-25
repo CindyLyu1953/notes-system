@@ -29,9 +29,12 @@ Current Actions are `record_input`, `upsert_concept`, `upsert_relation`, `set_kn
 `ResilientKnowledgeExtractor` selects the implementation:
 
 - `AI_EXTRACTION_ENABLED=true` + API key: OpenAI structured output validated by Pydantic.
-- Disabled, timed out or invalid response: deterministic local extractor.
+- Disabled for short text: deterministic local extractor.
+- Document timeout or invalid response: preserve the Input, propose no derived knowledge, and expose a retry action.
 
 Each workflow records provider, model, prompt version, response ID, latency and fallback reason. Concept matching uses existing names; Relations require textual support; state changes use observable `mention`, `explanation`, `application` or `reflection` signals.
+
+Document extraction uses the shared OpenAI timeout and up to `AI_EXTRACTION_MAX_ATTEMPTS`. A retry reuses the original Input and workflow, so it cannot duplicate the uploaded source. Keyword fallback is intentionally prohibited for attachments because a plausible-looking wrong Concept is less trustworthy than an explicit failure.
 
 ## Evidence and truth model
 

@@ -28,6 +28,7 @@ export const identityApi = {
   previewInput: (payload) => request("/inputs/preview", { method: "POST", body: JSON.stringify(payload) }),
   commitWorkflow: (runId, decisions = []) => request(`/workflow-runs/${runId}/commit`, { method: "POST", body: JSON.stringify({ decisions }) }),
   rejectWorkflow: (runId) => request(`/workflow-runs/${runId}/reject`, { method: "POST" }),
+  retryExtraction: (runId) => request(`/workflow-runs/${runId}/retry-extraction`, { method: "POST" }),
   chat: (message) => request("/chat", { method: "POST", body: JSON.stringify({ message }) }),
   recap: (period) => request(`/recap?period=${encodeURIComponent(period)}`),
   captureWebSource: (url) => request("/web-sources", { method: "POST", body: JSON.stringify({ url }) }),
