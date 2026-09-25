@@ -38,7 +38,6 @@ export const implementationPhases = [
     items: [
       ["complete", "Retrieval-grounded LLM answers with source citations"],
       ["complete", "Evidence-backed week, month, and year recap generation"],
-      ["complete", "Personalized Next Knowledge recommendations"],
       ["complete", "Extraction and retrieval evaluation suite"],
     ],
   },

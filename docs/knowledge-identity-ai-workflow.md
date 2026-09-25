@@ -23,7 +23,7 @@
   ↓
 保存原始 Input
   ↓
-AI 提取 Concepts / Relations / Knowledge signals
+AI 提取 Concepts / Knowledge signals / structured note
   ↓
 生成 pending Actions
   ↓
@@ -32,7 +32,7 @@ AI 提取 Concepts / Relations / Knowledge signals
   ↓
 Action Executor 唯一写入
   ↓
-Knowledge Identity / Growth Recap / Next Knowledge / Chat
+Knowledge Identity / Library / Growth Recap / Chat
 ```
 
 ## 核心结构
@@ -46,7 +46,6 @@ MVP 的 Capture Graph：
 ```text
 Capture Input
   → Extract Concepts
-  → Infer Relations
   → Evaluate Knowledge States
   → Record Learning Event
   → Refresh Identity
@@ -61,11 +60,9 @@ Capture Input
 | Node | 输入 | 输出 |
 |---|---|---|
 | `extract_concepts` | 原始 Input | 标准化 Concept candidates |
-| `infer_relations` | Concepts + Input | Relation candidates |
 | `evaluate_states` | candidates + 历史 Evidence | Knowledge State proposals |
 | `record_learning_event` | 本次变化 | Learning Event proposal |
 | `generate_recap` | 时间范围内的 Events / Facts | Growth Recap |
-| `recommend_next` | 当前 Identity + gaps | Next Knowledge |
 
 所有 Node 输出必须通过 schema 校验。模型无法提供证据时，不得产生强结论。
 
@@ -78,7 +75,6 @@ Action 是系统允许执行的最小修改。AI 只能提出 Action，不能直
 ```text
 record_input
 upsert_concept
-upsert_relation
 set_knowledge_state
 record_learning_event
 ```

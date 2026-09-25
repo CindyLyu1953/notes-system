@@ -24,7 +24,7 @@ ActionExecutor         └─ PostgreSQL + pgvector adapter
 |---|---|---|
 | Web | React 18, Vite 7, CSS | Capture, proposal review, identity visualization |
 | API | Python 3.11+, FastAPI, Pydantic v2 | HTTP contracts and validation |
-| AI | OpenAI Responses API, structured output | Optional concept/relation/state proposals |
+| AI | OpenAI Responses API, structured output | Optional concept/state proposals and detailed study notes |
 | Data | PostgreSQL 16, psycopg 3 | Durable state and full-text search |
 | Semantic retrieval | pgvector, `text-embedding-3-small` | 1536-dimensional vectors and cosine search |
 | Source ingestion | FastAPI multipart, urllib, HTMLParser, pypdf | Immutable file/web/media intake and normalized extraction |
@@ -60,7 +60,7 @@ Keep these interfaces small. Provider SDKs, SQL and model prompting belong behin
 5. `ActionDecisionResolver` removes invalid dependencies.
 6. `ActionExecutor` is the only writer of derived state.
 7. The repository saves a snapshot and refreshes search documents/embeddings.
-8. Identity, recap, recommendation, search and chat read the resulting state.
+8. Identity, recap, search and chat read the resulting state.
 
 Files and public URLs enter through separate intake adapters, then converge: immutable artifact bytes → background extraction → normalized segments → trusted attachment hydration → the same Capture workflow above.
 

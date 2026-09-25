@@ -7,10 +7,9 @@ Each top-level page answers one user question. Capture stays effortless; reflect
 | Hash route | User question | Owns |
 |---|---|---|
 | `#capture` | What do I want to add? | Text/voice/file/URL capture, processing feedback, AI review |
-| `#identity` | What do I know now? | Knowledge graph, Knowledge State, evidence-grounded chat |
-| `#next` | What should I explore next? | One evidence-backed recommendation |
+| `#identity` | What do I know now? | Confirmed Concepts, Knowledge State, evidence-grounded chat |
 | `#growth` | How am I changing? | Week/month/year recap and supporting Evidence |
-| `#library` | What did I save, and how was it organized? | Unchanged sources, structured AI notes, concept maintenance and backup |
+| `#library` | What did I save, and how was it organized? | Unchanged originals, structured AI notes and backup controls |
 
 ## Navigation contract
 
@@ -22,13 +21,14 @@ Each top-level page answers one user question. Capture stays effortless; reflect
 
 ## Page ownership
 
-`KnowledgeIdentityPrototype.jsx` currently owns shared server state and route selection. Page modules receive only the data/actions they need. If pages grow, extract `CapturePage`, `IdentityPage`, `NextPage`, and `GrowthPage` into separate files without moving product logic into them.
+`KnowledgeIdentityPrototype.jsx` currently owns shared server state and route selection. Page modules receive only the data/actions they need. If pages grow, extract `CapturePage`, `IdentityPage`, and `GrowthPage` into separate files without moving product logic into them.
 
 ## Knowledge and Library views
 
-- Identity lists every Concept and renders Relations as readable source → type → target statements with rationale, confidence and Evidence count. Lines without labels are intentionally avoided.
+- Identity lists confirmed Concepts and their Evidence count. Relation inference and the Next recommendation surface are intentionally outside the MVP.
 - Library groups records by source. `Original` is read-only and opens immutable artifact bytes when a file exists; extracted text is only a readable preview.
-- `AI note` is derived from the same source, organized as a complete note, and visually highlights `[[Concept]]` markers. It never replaces or mutates the Original.
+- Both note views use the product's normal sans-serif reading typography: 16px body text, 1.7-1.75 line height and a maximum 72-character measure.
+- `AI note` is a standalone study note: it states the source's definitions, principles, processes, responsibilities, distinctions, examples and practical details instead of describing what the source is about. It visually highlights `[[Concept]]` markers and never replaces or mutates the Original.
 - Tabs use native buttons with `role="tab"`, visible selected state and keyboard focus; long source text scrolls inside its reader rather than expanding the entire page.
 
 ## Responsive behavior

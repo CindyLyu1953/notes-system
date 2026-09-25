@@ -22,7 +22,7 @@ capture → preserve Input → extract → propose Actions → review
 | `ActionExecutor` | Validated derived-state mutations | Prompting or UI policy |
 | Repository | Atomic durable representation | Product decisions |
 
-Current Actions are `record_input`, `upsert_concept`, `upsert_relation`, `set_knowledge_state`, `create_note`, `record_learning_event`, and input organization. A rejected Concept also rejects dependent state/relation actions.
+Current Actions are `record_input`, `upsert_concept`, `set_knowledge_state`, `create_note`, `record_learning_event`, and input organization. A rejected Concept also rejects its dependent state and note/event references.
 
 ## Extraction path
 
@@ -32,22 +32,20 @@ Current Actions are `record_input`, `upsert_concept`, `upsert_relation`, `set_kn
 - Disabled for short text: deterministic local extractor.
 - Document timeout or invalid response: preserve the Input, propose no derived knowledge, and expose a retry action.
 
-Each workflow records provider, model, prompt version, response ID, latency and fallback reason. Concept matching uses existing names; Relations require textual support; state changes use observable `mention`, `explanation`, `application` or `reflection` signals.
-
-Relations are explainable facts, not visual co-occurrence. Each persisted edge keeps its direction, type (`part_of`, `depends_on`, `supports`, `contrasts_with`, `applies`, or last-resort `related_to`), rationale, confidence and Evidence IDs. The offline extractor proposes no Relations because adjacent keyword matches do not prove a semantic edge.
+Each workflow records provider, model, prompt version, response ID, latency and fallback reason. Concept matching uses existing names; state changes use observable `mention`, `explanation`, `application` or `reflection` signals.
 
 For substantive documents, extraction scans the complete source and may propose up to 12 Concepts. Selection favors durable knowledge topics, named methods/frameworks, professional responsibilities and transferable skills across distinct sections. Names use the most informative supported granularity (`Project management`, not `Project`; `Program management`, not `Program`), and generic/specific duplicates are prohibited. The source still controls coverage: 6-12 is a target only when the evidence contains that many distinct major topics.
 
 Document extraction uses the shared OpenAI timeout and up to `AI_EXTRACTION_MAX_ATTEMPTS`. A retry reuses the original Input and workflow, so it cannot duplicate the uploaded source. Keyword fallback is intentionally prohibited for attachments because a plausible-looking wrong Concept is less trustworthy than an explicit failure.
 
-The extractor also proposes one complete Markdown `structured_note`. It must stay grounded in the source, cover every extracted Concept and mark the first meaningful occurrence as `[[Concept name]]`. A deterministic evidence-based note is generated if the model omits it. This Note is derived and editable; the original Input and artifact bytes remain unchanged.
+The extractor also proposes one complete Markdown `structured_note`. It must stand alone as a study note: state the actual definitions, principles, processes, responsibilities, distinctions, examples and practical details rather than saying what the source “covers.” It stays grounded in the source, covers every extracted Concept and marks the first meaningful occurrence as `[[Concept name]]`. A deterministic evidence-based note is generated if the model omits it. This Note is derived and editable; the original Input and artifact bytes remain unchanged.
 
 Legacy Notes created before `structured_note` are upgraded in memory at load time: their summary becomes the overview, complete stored source text becomes the body, and known Concept names are marked. This compatibility view does not mutate either the original artifact or persisted history; a new capture produces the richer model-authored version.
 
 ## Evidence and truth model
 
 - **Event truth:** immutable Inputs and Learning Events describe what happened.
-- **Fact truth:** Concepts, Relations and Knowledge States describe the latest interpretation.
+- **Fact truth:** Concepts and Knowledge States describe the latest interpretation.
 - Facts may evolve; their Evidence links must remain traceable to Inputs.
 - File-derived Concept Evidence also records `artifact_id`, `segment_id` and a human-readable page/section locator.
 

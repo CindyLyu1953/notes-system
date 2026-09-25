@@ -56,7 +56,7 @@ Normalized output should contain:
 - **Extractor adapters:** PDF, HTML, OpenAI vision OCR and Whisper transcription behind small interfaces.
 - **Job adapter:** FastAPI background tasks locally; PostgreSQL queue plus standalone worker in deployment.
 - **Normalizer:** creates stable text/segments and Evidence anchors.
-- **Existing workflow:** proposes Concepts/Relations/States from normalized evidence.
+- **Existing workflow:** proposes Concepts, States and a structured Note from normalized evidence.
 
 ## Safety and reliability requirements
 

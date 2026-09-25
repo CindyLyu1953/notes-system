@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This layer turns stored evidence into three read experiences: grounded answers, period recaps, and one personalized next direction. It never writes knowledge state. Capture review remains the only path for derived writes.
+This layer turns stored evidence into two read experiences: grounded answers and period recaps. It never writes knowledge state. Capture review remains the only path for derived writes.
 
 ## Request flow
 
@@ -24,8 +24,6 @@ The seam is `ResilientKnowledgeIntelligence`. `OpenAIKnowledgeIntelligence` only
 |---|---|---|
 | Ask your knowledge | Top hybrid retrieval hits | Answer, explicit knowledge gap, source excerpts |
 | Growth | Inputs, concepts, and events inside week/month/year | Headline, narrative, highlights, cited input IDs |
-| Next Knowledge | Lowest current edge concept, its Evidence and neighbors | One direction, reason, bridge, first action, cited input IDs |
-
 If AI is disabled, unconfigured, times out, or returns invalid output, each path returns a useful deterministic result. The product remains operational and never invents an uncited source.
 
 ## Configuration
