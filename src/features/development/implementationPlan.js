@@ -10,13 +10,13 @@ export const implementationPhases = [
   },
   {
     title: "Phase 4 · Persistence & retrieval",
-    status: "in-progress",
+    status: "complete",
     items: [
       ["complete", "PostgreSQL state persistence and automatic migrations"],
       ["complete", "Indexed full-text retrieval across inputs, notes, and concepts"],
       ["complete", "Remove seed data and the hard-coded personal profile"],
-      ["next", "Add embeddings with pgvector"],
-      ["next", "Combine keyword and semantic results with hybrid ranking"],
+      ["complete", "Add embeddings with pgvector"],
+      ["complete", "Combine keyword and semantic results with hybrid ranking"],
     ],
   },
   {
