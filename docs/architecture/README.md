@@ -30,7 +30,7 @@ Open <http://localhost:5173/notes-system/>. No sign-in is required. Vite proxies
 2. [Capture and AI workflow](./02-capture-and-ai-workflow.md) — the product's critical write path.
 3. [Persistence and retrieval](./03-persistence-and-retrieval.md) — PostgreSQL, pgvector, hybrid ranking.
 4. [Local development and operations](./04-local-development-and-operations.md) — run, test, diagnose.
-5. [Real-world inputs plan](./05-real-world-inputs-plan.md) — recommended next phase.
+5. [Real-world inputs](./05-real-world-inputs-plan.md) — implemented PDF/text slice and next adapters.
 
 Product language lives in [`CONTEXT.md`](../../CONTEXT.md); the rationale for the write path lives in [ADR-0001](../adr/0001-evidence-first-action-pipeline.md).
 

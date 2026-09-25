@@ -195,7 +195,8 @@ Knowledge Identity Chat 不把全部历史塞给模型。每次回答只组装�
 
 - 文字、链接和问题直接输入；`Cmd/Ctrl + Enter` 快速提交。
 - 浏览器支持时，语音按钮把讲话实时转写回同一个输入框。
-- 附件支持选择和拖放；文本类附件内容参与 extraction，其他附件先保留名称、类型和大小。
+- 附件支持选择和拖放；PDF/TXT/Markdown 由后端保存原件并提取文本，完成后才进入 extraction。
+- PDF 页码或文本 section 会随 Evidence 保存；上传、提取失败和重试状态直接显示在输入框中。
 - 输入类型根据内容自动判断，不向用户展示额外表单。
 - AI 的结构化理解仍进入同一个 review panel，原始 Input 会先保留。
 

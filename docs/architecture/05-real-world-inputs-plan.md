@@ -1,4 +1,6 @@
-# Real-world Inputs · Next Phase
+# Real-world Inputs
+
+> Status: PDF/TXT/Markdown slice implemented locally. URL, OCR, audio and production infrastructure remain planned.
 
 ## Recommendation
 
@@ -31,9 +33,9 @@ The existing Capture workflow should consume normalized evidence, not know wheth
 ## Core interfaces
 
 ```text
-ArtifactStore.put/get
-ContentExtractor.supports/extract
-IngestionJobQueue.enqueue/status/retry
+ArtifactStore.create/get/read_bytes/update   # implemented
+ArtifactIngestion.intake/get/process/retry   # implemented
+DurableJobQueue.enqueue/status/retry         # production follow-up
 ```
 
 Normalized output should contain:
@@ -67,22 +69,23 @@ Normalized output should contain:
 - Preserve page numbers, OCR regions and audio timestamps so every claim can cite its source.
 - Expose `queued → extracting → ready | partial | failed` and a safe retry path.
 
-## First implementation slice: PDF/text
+## Implemented slice: PDF/text
 
-1. Add multipart intake and artifact metadata schemas.
-2. Add local `ArtifactStore` adapter outside the database.
-3. Extract TXT/Markdown directly and PDF text page-by-page.
-4. Persist normalized segments and ingestion status.
-5. Feed extracted text into preview; cite page/segment Evidence.
-6. Chunk and embed ready documents without blocking raw upload.
-7. Render upload progress, extraction state, warnings and retry in the existing single capture box.
+- [x] Multipart intake and artifact metadata schemas.
+- [x] Immutable local `ArtifactStore`; memory adapter for tests.
+- [x] TXT/Markdown sections and PDF page-by-page extraction.
+- [x] Persistent normalized segments and `queued/extracting/ready/failed` status.
+- [x] Server-side attachment hydration and page/section Evidence references.
+- [x] Upload/extraction/failure/retry states in the existing capture box.
+- [ ] Independent chunk-level search documents and embeddings for whole source files.
+- [ ] Durable queue/worker; current FastAPI background task survives browser navigation but not process failure.
 
 ## Definition of done
 
-- A user can drop a real PDF/TXT and leave the screen while processing continues.
+- A user can drop a real PDF/TXT/Markdown and leave the screen while the backend process continues.
 - The raw artifact, extracted version and provenance are inspectable.
 - Retry does not duplicate Inputs, Actions or embeddings.
-- Concepts and answers link back to page/segment Evidence.
+- Concepts link back to page/segment Evidence; answer-level citation rendering remains follow-up work.
 - Corrupt, unsupported and oversized files fail clearly without losing the artifact record.
 - Provider/parser failure cannot corrupt Knowledge Identity state.
 - Unit tests cover each adapter contract; integration tests cover upload → extraction → review → commit → retrieval.

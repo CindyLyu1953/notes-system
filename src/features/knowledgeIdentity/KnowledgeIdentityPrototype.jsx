@@ -38,26 +38,66 @@ function Composer({ onSubmit, busy }) {
   const recognitionRef = useRef(null);
   const voiceBaseRef = useRef("");
 
+  const waitForArtifact = async (artifactId) => {
+    for (let attempt = 0; attempt < 60; attempt += 1) {
+      const artifact = await identityApi.getArtifact(artifactId);
+      setAttachments((current) => current.map((item) => item.id === artifactId ? { ...item, ...artifact } : item));
+      if (artifact.status === "ready" || artifact.status === "failed") return artifact;
+      await new Promise((resolve) => window.setTimeout(resolve, 500));
+    }
+    throw new Error("Extraction is taking longer than expected. You can retry it here.");
+  };
+
+  const uploadFile = async (file, temporaryId) => {
+    try {
+      const queued = await identityApi.uploadArtifact(file);
+      setAttachments((current) => current.map((item) => item.id === temporaryId ? { ...item, ...queued, temporaryId } : item));
+      await waitForArtifact(queued.id);
+    } catch (error) {
+      setAttachments((current) => current.map((item) => item.id === temporaryId || item.temporaryId === temporaryId ? { ...item, status: "failed", error: error.message } : item));
+    }
+  };
+
   const addFiles = async (fileList) => {
     const available = Math.max(0, 5 - attachments.length);
     const files = Array.from(fileList).slice(0, available);
     const accepted = [];
     for (const file of files) {
-      if (file.size > 1_500_000) {
-        setNotice(`${file.name} is larger than 1.5 MB.`);
+      if (file.size > 10_485_760) {
+        setNotice(`${file.name} is larger than 10 MB.`);
         continue;
       }
-      const isText = file.type.startsWith("text/") || /\.(md|txt|csv|json)$/i.test(file.name);
+      if (!/\.(pdf|txt|md)$/i.test(file.name)) {
+        setNotice(`${file.name} is not supported yet. Add a PDF, TXT, or Markdown file.`);
+        continue;
+      }
+      const temporaryId = `${file.name}-${file.lastModified}-${file.size}`;
       accepted.push({
-        id: `${file.name}-${file.lastModified}-${file.size}`,
+        id: temporaryId,
+        temporaryId,
         name: file.name,
         mime_type: file.type || "application/octet-stream",
         size: file.size,
-        content_text: isText ? (await file.text()).slice(0, 10_000) : null,
+        status: "uploading",
+        file,
       });
     }
     setAttachments((current) => [...current, ...accepted]);
-    if (accepted.length) setNotice("");
+    if (accepted.length) {
+      setNotice("");
+      await Promise.all(accepted.map((item) => uploadFile(item.file, item.temporaryId)));
+    }
+  };
+
+  const retryFile = async (file) => {
+    if (!file.id?.startsWith("artifact-")) return;
+    try {
+      const queued = await identityApi.retryArtifact(file.id);
+      setAttachments((current) => current.map((item) => item.id === file.id ? { ...item, ...queued } : item));
+      await waitForArtifact(file.id);
+    } catch (error) {
+      setAttachments((current) => current.map((item) => item.id === file.id ? { ...item, status: "failed", error: error.message } : item));
+    }
   };
 
   const toggleVoice = () => {
@@ -88,6 +128,7 @@ function Composer({ onSubmit, busy }) {
 
   const submit = async (event) => {
     event.preventDefault();
+    if (attachments.some((item) => item.status !== "ready")) return;
     if (content.trim().length < 3 && attachments.length === 0) return;
     const text = content.trim() || `Attached: ${attachments.map((item) => item.name).join(", ")}`;
     const sourceType = voiceUsed ? "voice" : attachments.some((item) => item.mime_type.startsWith("image/")) ? "screenshot" : attachments.length ? "note" : /^https?:\/\//i.test(text) ? "link" : /\?\s*$/.test(text) ? "question" : "thought";
@@ -95,7 +136,7 @@ function Composer({ onSubmit, busy }) {
       content: text,
       source_type: sourceType,
       destination: null,
-      attachments: attachments.map((item) => ({ name: item.name, mime_type: item.mime_type, size: item.size, content_text: item.content_text })),
+      attachments: attachments.map((item) => ({ name: item.name, mime_type: item.media_type || item.mime_type, size: item.size, artifact_id: item.id })),
     });
     if (!saved) return;
     setContent("");
@@ -107,15 +148,15 @@ function Composer({ onSubmit, busy }) {
     <form className={`composer composer--simple ${listening ? "is-listening" : ""}`} onSubmit={submit} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); addFiles(event.dataTransfer.files); }}>
       <label className="sr-only" htmlFor="knowledge-capture">Add anything to your knowledge identity</label>
       <textarea id="knowledge-capture" value={content} onChange={(event) => setContent(event.target.value)} onKeyDown={(event) => { if ((event.metaKey || event.ctrlKey) && event.key === "Enter") event.currentTarget.form?.requestSubmit(); }} placeholder="Drop a thought, link, question, or half-formed idea…" rows={4}/>
-      {attachments.length ? <div className="composer__attachments">{attachments.map((file) => <span key={file.id}><Icon name="paperclip" size={14}/>{file.name}<button type="button" onClick={() => setAttachments((current) => current.filter((item) => item.id !== file.id))} aria-label={`Remove ${file.name}`}><Icon name="close" size={14}/></button></span>)}</div> : null}
+      {attachments.length ? <div className="composer__attachments">{attachments.map((file) => <span className={`attachment attachment--${file.status}`} key={file.id}><Icon name="paperclip" size={14}/><span>{file.name}<small>{file.status === "ready" ? `${file.segments?.length || 0} source ${file.segments?.length === 1 ? "segment" : "segments"}` : file.status === "failed" ? file.error || "Extraction failed" : file.status === "uploading" ? "Uploading…" : "Extracting…"}</small></span>{file.status === "failed" && file.id?.startsWith("artifact-") ? <button className="attachment__retry" type="button" onClick={() => retryFile(file)}>Retry</button> : null}<button type="button" onClick={() => setAttachments((current) => current.filter((item) => item.id !== file.id))} aria-label={`Remove ${file.name}`}><Icon name="close" size={14}/></button></span>)}</div> : null}
       <div className="composer__controls">
         <div className="composer__tools">
-          <input ref={fileInputRef} className="sr-only" type="file" multiple accept="image/*,.pdf,.txt,.md,.csv,.json" onChange={async (event) => { await addFiles(event.target.files); event.target.value = ""; }} />
+          <input ref={fileInputRef} className="sr-only" type="file" multiple accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown" onChange={async (event) => { await addFiles(event.target.files); event.target.value = ""; }} />
           <button className="composer__icon-button" type="button" onClick={() => fileInputRef.current?.click()} aria-label="Attach files" title="Attach files"><Icon name="paperclip"/></button>
           <button className={`composer__icon-button ${listening ? "is-active" : ""}`} type="button" onClick={toggleVoice} aria-label={listening ? "Stop voice input" : "Start voice input"} aria-pressed={listening} title="Voice input"><Icon name="mic"/></button>
           <span className="composer__hint">{notice || "Type, speak, or attach — no organizing required"}</span>
         </div>
-        <button className="composer__submit" type="submit" disabled={busy || (content.trim().length < 3 && attachments.length === 0)} aria-label="Add to Knowledge Identity"><span>{busy ? "Making sense of it…" : "Add"}</span><Icon name={busy ? "spark" : "send"} size={18}/></button>
+        <button className="composer__submit" type="submit" disabled={busy || attachments.some((item) => item.status !== "ready") || (content.trim().length < 3 && attachments.length === 0)} aria-label="Add to Knowledge Identity"><span>{busy ? "Making sense of it…" : attachments.some((item) => ["uploading", "queued", "extracting"].includes(item.status)) ? "Reading…" : "Add"}</span><Icon name={busy ? "spark" : "send"} size={18}/></button>
       </div>
     </form>
   );

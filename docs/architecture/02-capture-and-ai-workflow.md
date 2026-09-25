@@ -4,6 +4,8 @@
 
 Capture accepts free text plus lightweight attachment metadata/content. It returns a pending interpretation before derived facts are committed. Raw evidence survives both commit and rejection.
 
+For uploaded PDF/TXT/Markdown files, clients send only `artifact_id` into Capture. The route hydrates filename, size, extracted text and segments from the server-side artifact store; client-supplied extracted content is not trusted.
+
 ```text
 capture → preserve Input → extract → propose Actions → review
                                               ├─ commit/edit → execute → persist
@@ -36,6 +38,7 @@ Each workflow records provider, model, prompt version, response ID, latency and 
 - **Event truth:** immutable Inputs and Learning Events describe what happened.
 - **Fact truth:** Concepts, Relations and Knowledge States describe the latest interpretation.
 - Facts may evolve; their Evidence links must remain traceable to Inputs.
+- File-derived Concept Evidence also records `artifact_id`, `segment_id` and a human-readable page/section locator.
 
 ## Safe extension pattern
 

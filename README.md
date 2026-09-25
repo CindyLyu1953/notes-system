@@ -22,6 +22,7 @@ In local development, Vite proxies same-origin `/api` requests to `http://127.0.
 ## Product surface
 
 - One effortless capture box for text, links, voice transcription, drag-and-drop, and file selection
+- Real PDF/TXT/Markdown upload with immutable local storage, extraction status, retry, and page/section provenance
 - Automatic input-type inference instead of asking the user to organize before capture
 - Edit or reject individual AI-proposed concepts, states, and connections before they change the identity
 - Visible extraction provenance: configured AI model or local fallback
