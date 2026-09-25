@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
   const apiProxyTarget =
     env.VITE_API_PROXY_TARGET ||
     (/^https?:\/\//.test(configuredApiBase) ? configuredApiBase : "") ||
-    "http://localhost:8000";
+    "http://127.0.0.1:8000";
 
   return {
     base: "/notes-system/",

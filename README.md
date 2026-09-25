@@ -16,7 +16,7 @@ cp .env.example .env.local
 npm run prototype
 ```
 
-The frontend attempts to use the local API at `http://127.0.0.1:8000`. If it is unavailable, the complete prototype remains interactive in local demo mode. No sign-in is required for this single-user prototype.
+In local development, Vite proxies same-origin `/api` requests to `http://127.0.0.1:8000`; set `VITE_API_BASE_URL` only for a deployed API. If the backend is unavailable, the UI shows an explicit offline message and keeps a genuine empty state; it never substitutes seed data or a fictional profile. No sign-in is required for this single-user prototype.
 
 ## Product surface
 
@@ -27,6 +27,9 @@ The frontend attempts to use the local API at `http://127.0.0.1:8000`. If it is 
 - Living knowledge graph and knowledge-state overview
 - Weekly growth recap and next-knowledge recommendation
 - Grounded chat over the user's knowledge identity
+- Temporary in-product implementation checklist for development visibility
+
+The build checklist is rendered near the bottom of the page and linked from the header. Remove `src/features/development/` and its render/import before a public launch.
 
 ## Prototype question
 

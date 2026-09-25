@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ImplementationPlan } from "../development/ImplementationPlan.jsx";
 import { identityApi } from "./api.js";
-import { addDemoInput, demoIdentity } from "./demoData.js";
+import { emptyIdentity } from "./emptyIdentity.js";
 
 const stateLabel = { unknown: "Unknown", aware: "Aware", learning: "Learning", known: "Known" };
 
@@ -90,12 +91,13 @@ function Composer({ onSubmit, busy }) {
     if (content.trim().length < 3 && attachments.length === 0) return;
     const text = content.trim() || `Attached: ${attachments.map((item) => item.name).join(", ")}`;
     const sourceType = voiceUsed ? "voice" : attachments.some((item) => item.mime_type.startsWith("image/")) ? "screenshot" : attachments.length ? "note" : /^https?:\/\//i.test(text) ? "link" : /\?\s*$/.test(text) ? "question" : "thought";
-    await onSubmit({
+    const saved = await onSubmit({
       content: text,
       source_type: sourceType,
       destination: null,
       attachments: attachments.map((item) => ({ name: item.name, mime_type: item.mime_type, size: item.size, content_text: item.content_text })),
     });
+    if (!saved) return;
     setContent("");
     setAttachments([]);
     setVoiceUsed(false);
@@ -120,6 +122,7 @@ function Composer({ onSubmit, busy }) {
 }
 
 function ConceptList({ concepts, limit = 6 }) {
+  if (!concepts.length) return <p className="empty-state">Your first confirmed concept will appear here.</p>;
   return <div className="concept-list">{concepts.slice(0, limit).map((concept) => <article className="concept-row" key={concept.id}><div><strong>{concept.name}</strong><small>{concept.evidence.length} evidence {concept.evidence.length === 1 ? "item" : "items"}</small></div><Status state={concept.state}/></article>)}</div>;
 }
 
@@ -127,11 +130,11 @@ function Graph({ identity }) {
   const visible = identity.concepts.slice(0, 6);
   const positions = [[50, 48], [19, 23], [80, 20], [18, 78], [82, 76], [50, 88]];
   const positionById = Object.fromEntries(visible.map((item, index) => [item.id, positions[index]]));
-  return <div className="knowledge-graph" aria-label="Knowledge concept network"><svg viewBox="0 0 100 100" role="img" aria-label="Connected knowledge concepts">{identity.relations.map((relation) => { const a = positionById[relation.source]; const b = positionById[relation.target]; return a && b ? <line key={`${relation.source}-${relation.target}`} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]}/> : null; })}</svg>{visible.map((concept, index) => <button type="button" className={`graph-node graph-node--${concept.state}`} key={concept.id} style={{ left: `${positions[index][0]}%`, top: `${positions[index][1]}%` }} title={concept.evidence[0]?.excerpt}><span>{concept.name}</span><small>{stateLabel[concept.state]}</small></button>)}</div>;
+  return <div className={`knowledge-graph ${visible.length ? "" : "knowledge-graph--empty"}`} aria-label="Knowledge concept network">{visible.length ? <><svg viewBox="0 0 100 100" role="img" aria-label="Connected knowledge concepts">{identity.relations.map((relation) => { const a = positionById[relation.source]; const b = positionById[relation.target]; return a && b ? <line key={`${relation.source}-${relation.target}`} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]}/> : null; })}</svg>{visible.map((concept, index) => <button type="button" className={`graph-node graph-node--${concept.state}`} key={concept.id} style={{ left: `${positions[index][0]}%`, top: `${positions[index][1]}%` }} title={concept.evidence[0]?.excerpt}><span>{concept.name}</span><small>{stateLabel[concept.state]}</small></button>)}</> : <div className="graph-empty"><Icon name="graph" size={28}/><strong>Your map starts empty</strong><span>Add something above, then approve the concepts that feel true.</span></div>}</div>;
 }
 
 function Recommendation({ item }) {
-  return <article className="recommendation"><span className="eyebrow">Just beyond your edge</span><h3>{item.concept}</h3><p>{item.reason}</p><div className="bridge">Bridge from {item.bridge_from.slice(0, 2).join(" + ")}</div><button type="button">Start with one question <Icon name="arrow" size={17}/></button></article>;
+  return <article className="recommendation"><span className="eyebrow">Just beyond your edge</span><h3>{item.concept}</h3><p>{item.reason}</p>{item.bridge_from.length ? <div className="bridge">Bridge from {item.bridge_from.slice(0, 2).join(" + ")}</div> : null}<button type="button">{item.first_step}<Icon name="arrow" size={17}/></button></article>;
 }
 
 function ReviewPanel({ run, busy, onAccept, onReject }) {
@@ -163,24 +166,26 @@ function Chat({ onChat, messages, busy }) {
 }
 
 function AppHeader({ mode }) {
-  return <header className="app-topbar"><a className="brand" href="#today"><span className="brand__logo">KI</span><span className="brand__name">Knowledge Identity</span></a><div className="topbar-tools"><span className="connection"><i className={`mode-dot mode-dot--${mode}`}/>{mode === "api" ? "Synced" : mode === "loading" ? "Connecting" : "Local demo"}</span><a className="identity-link" href="#identity">View identity</a></div></header>;
+  return <header className="app-topbar"><a className="brand" href="#today"><span className="brand__logo">KI</span><span className="brand__name">Knowledge Identity</span></a><div className="topbar-tools"><span className="connection"><i className={`mode-dot mode-dot--${mode}`}/>{mode === "api" ? "Synced" : mode === "loading" ? "Connecting" : "Backend offline"}</span><a className="identity-link" href="#build-plan">Build plan</a><a className="identity-link" href="#identity">View identity</a></div></header>;
 }
 
 export default function KnowledgeIdentityPrototype() {
-  const [identity, setIdentity] = useState(demoIdentity);
+  const [identity, setIdentity] = useState(emptyIdentity);
   const [mode, setMode] = useState("loading");
+  const [error, setError] = useState("");
   const [inputBusy, setInputBusy] = useState(false);
   const [decisionBusy, setDecisionBusy] = useState(false);
   const [pendingRun, setPendingRun] = useState(null);
   const [chatBusy, setChatBusy] = useState(false);
   const [messages, setMessages] = useState([{ role: "assistant", content: "I can reflect what you know, show the evidence behind it, and name the gap at your current edge.", evidence: [] }]);
 
-  useEffect(() => { identityApi.load().then((data) => { setIdentity(data); setMode("api"); }).catch(() => setMode("demo")); }, []);
-  const previewInput = useCallback(async (payload) => { setInputBusy(true); try { const run = await identityApi.previewInput(payload); setPendingRun(run); setMode("api"); } catch { const nextIdentity = addDemoInput(identity, payload); const conceptIds = nextIdentity.recent_inputs[0].concept_ids; setPendingRun({ id: "local-demo", status: "planned", demoIdentity: nextIdentity, actions: conceptIds.map((conceptId) => ({ id: `local-${conceptId}`, kind: "upsert_concept", status: "pending", payload: { concept_id: conceptId, name: nextIdentity.concepts.find((item) => item.id === conceptId)?.name || conceptId } })) }); setMode("demo"); } finally { setInputBusy(false); } }, [identity]);
-  const acceptRun = useCallback(async (decisions = []) => { if (!pendingRun) return; setDecisionBusy(true); try { if (pendingRun.demoIdentity) { setIdentity(pendingRun.demoIdentity); } else { setIdentity(await identityApi.commitWorkflow(pendingRun.id, decisions)); setMode("api"); } setPendingRun(null); } finally { setDecisionBusy(false); } }, [pendingRun]);
-  const rejectRun = useCallback(async () => { if (!pendingRun) return; setDecisionBusy(true); try { if (!pendingRun.demoIdentity) { setIdentity(await identityApi.rejectWorkflow(pendingRun.id)); setMode("api"); } setPendingRun(null); } finally { setDecisionBusy(false); } }, [pendingRun]);
-  const chat = useCallback(async (message) => { setMessages((items) => [...items, { role: "user", content: message }]); setChatBusy(true); try { const response = await identityApi.chat(message); setMessages((items) => [...items, { role: "assistant", content: response.answer, evidence: response.evidence }]); setMode("api"); } catch { setMessages((items) => [...items, { role: "assistant", content: `Based on your evidence, your strongest pattern is ${identity.concepts.slice(0, 3).map((item) => item.name).join(", ")}. Your next gap is turning those ideas into observable evaluation criteria.`, evidence: identity.recent_inputs.slice(0, 2).map((item) => ({ input_id: item.id })) }]); setMode("demo"); } finally { setChatBusy(false); } }, [identity]);
+  const loadIdentity = useCallback(async () => { setMode("loading"); setError(""); try { setIdentity(await identityApi.load()); setMode("api"); } catch { setMode("error"); setError("The backend is not reachable. Start it to load or save your knowledge — no demo data has been substituted."); } }, []);
+  useEffect(() => { loadIdentity(); }, [loadIdentity]);
+  const previewInput = useCallback(async (payload) => { setInputBusy(true); setError(""); try { const run = await identityApi.previewInput(payload); setPendingRun(run); setMode("api"); return true; } catch { setMode("error"); setError("This input was not saved because the backend is offline. Your text is still in the composer."); return false; } finally { setInputBusy(false); } }, []);
+  const acceptRun = useCallback(async (decisions = []) => { if (!pendingRun) return; setDecisionBusy(true); setError(""); try { setIdentity(await identityApi.commitWorkflow(pendingRun.id, decisions)); setMode("api"); setPendingRun(null); } catch { setMode("error"); setError("The selected changes could not be saved. Please reconnect and try again."); } finally { setDecisionBusy(false); } }, [pendingRun]);
+  const rejectRun = useCallback(async () => { if (!pendingRun) return; setDecisionBusy(true); setError(""); try { setIdentity(await identityApi.rejectWorkflow(pendingRun.id)); setMode("api"); setPendingRun(null); } catch { setMode("error"); setError("The workflow could not be updated. Please reconnect and try again."); } finally { setDecisionBusy(false); } }, [pendingRun]);
+  const chat = useCallback(async (message) => { setMessages((items) => [...items, { role: "user", content: message }]); setChatBusy(true); try { const response = await identityApi.chat(message); setMessages((items) => [...items, { role: "assistant", content: response.answer, evidence: response.evidence }]); setMode("api"); } catch { setMessages((items) => [...items, { role: "assistant", content: "I couldn't reach your knowledge store, so I won't invent an answer. Start the backend and try again.", evidence: [] }]); setMode("error"); } finally { setChatBusy(false); } }, []);
   const counts = useMemo(() => Object.fromEntries(["known", "learning", "aware"].map((state) => [state, identity.concepts.filter((item) => item.state === state).length])), [identity.concepts]);
 
-  return <div className="knowledge-app"><a className="skip-link" href="#main-content">Skip to content</a><AppHeader mode={mode}/><main id="main-content"><section className="capture-home" id="today"><div className="capture-home__intro"><span className="eyebrow">Your mind, without the filing</span><h1>What&apos;s on your mind?</h1><p>Put anything here. We&apos;ll connect the useful parts.</p></div><Composer onSubmit={previewInput} busy={inputBusy}/></section>{pendingRun ? <ReviewPanel key={pendingRun.id} run={pendingRun} busy={decisionBusy} onAccept={acceptRun} onReject={rejectRun}/> : null}<section className="identity-overview" aria-label="Knowledge identity overview"><div className="identity-overview__heading"><div><span className="eyebrow">Your knowledge, reflected back</span><h2>A living picture of what you know.</h2></div><div className="identity-summary"><span>This week</span><strong>{identity.concepts.length}</strong><small>concepts in motion</small><div><b>{counts.known} known</b><b>{counts.learning} learning</b><b>{counts.aware} aware</b></div></div></div><section className="dashboard"><div className="dashboard__main"><section className="panel identity-panel" id="identity"><div className="section-title"><span><Icon name="graph"/>Your living knowledge</span><small>{identity.concepts.length} concepts · {identity.relations.length} connections</small></div><Graph identity={identity}/></section><section className="panel recap" id="growth"><span className="eyebrow">This week&apos;s growth</span><h2>{identity.recap.headline}</h2><p>{identity.recap.narrative}</p><ul>{identity.recap.highlights.map((item) => <li key={item}>{item}</li>)}</ul><Evidence ids={identity.recap.evidence_input_ids}/></section></div><aside className="dashboard__side"><Recommendation item={identity.recommendation}/><section className="panel"><div className="section-title"><span>Knowledge state</span><small>Live</small></div><ConceptList concepts={identity.concepts}/></section><Chat onChat={chat} messages={messages} busy={chatBusy}/></aside></section></section></main><footer><span>Knowledge Identity</span><span>Every conclusion stays connected to its source.</span></footer></div>;
+  return <div className="knowledge-app"><a className="skip-link" href="#main-content">Skip to content</a><AppHeader mode={mode}/><main id="main-content"><section className="capture-home" id="today"><div className="capture-home__intro"><span className="eyebrow">Your mind, without the filing</span><h1>What&apos;s on your mind?</h1><p>Put anything here. We&apos;ll connect the useful parts.</p></div><Composer onSubmit={previewInput} busy={inputBusy}/>{error ? <div className="connection-error" role="alert"><span>{error}</span><button type="button" onClick={loadIdentity}>Retry connection</button></div> : null}</section>{pendingRun ? <ReviewPanel key={pendingRun.id} run={pendingRun} busy={decisionBusy} onAccept={acceptRun} onReject={rejectRun}/> : null}<section className="identity-overview" aria-label="Knowledge identity overview"><div className="identity-overview__heading"><div><span className="eyebrow">Your knowledge, reflected back</span><h2>A living picture of what you know.</h2></div><div className="identity-summary"><span>This week</span><strong>{identity.concepts.length}</strong><small>concepts in motion</small><div><b>{counts.known} known</b><b>{counts.learning} learning</b><b>{counts.aware} aware</b></div></div></div><section className="dashboard"><div className="dashboard__main"><section className="panel identity-panel" id="identity"><div className="section-title"><span><Icon name="graph"/>Your living knowledge</span><small>{identity.concepts.length} concepts · {identity.relations.length} connections</small></div><Graph identity={identity}/></section><section className="panel recap" id="growth"><span className="eyebrow">This week&apos;s growth</span><h2>{identity.recap.headline}</h2><p>{identity.recap.narrative}</p>{identity.recap.highlights.length ? <ul>{identity.recap.highlights.map((item) => <li key={item}>{item}</li>)}</ul> : null}<Evidence ids={identity.recap.evidence_input_ids}/></section></div><aside className="dashboard__side"><Recommendation item={identity.recommendation}/><section className="panel"><div className="section-title"><span>Knowledge state</span><small>Live</small></div><ConceptList concepts={identity.concepts}/></section><Chat onChat={chat} messages={messages} busy={chatBusy}/></aside></section></section><ImplementationPlan/></main><footer><span>Knowledge Identity</span><span>Every conclusion stays connected to its source.</span></footer></div>;
 }
