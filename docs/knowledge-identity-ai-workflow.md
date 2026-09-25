@@ -11,7 +11,7 @@
 | Phase 1 · 可审计写入路径 | 已完成 | Graph / Node / Action、唯一 ActionExecutor、Evidence、workflow run |
 | Phase 2 · 选择性确认 | 已完成 | 输入预览、原文先保存、逐条修改/接受/拒绝、依赖清理 |
 | Phase 3 · 真正的 AI extraction | 已完成 | OpenAI Structured Outputs、严格 schema、Concept 去重、state signals、trace 与本地 fallback |
-| Phase 4 · 持久化与检索 | 未开始 | 当前数据仍为进程内存 |
+| Phase 4 · 持久化与检索 | 已完成 | PostgreSQL、pgvector embeddings、关键词 + 语义 hybrid ranking |
 | Phase 5 · 复杂编排 | 按需评估 | 暂不引入 LangGraph |
 
 ## 一句话版本
@@ -201,10 +201,10 @@ Knowledge Identity Chat 不把全部历史塞给模型。每次回答只组装�
 
 ### Phase 4 · 持久化与检索
 
-- PostgreSQL 保存 Event / Fact / Evidence
-- pgvector + 关键词混合检索
-- Chat context assembly
-- 周 / 月 / 年 Growth Recap
+- [x] PostgreSQL 保存 Event / Fact / Evidence
+- [x] pgvector embeddings + 关键词 / 语义 hybrid ranking
+- [x] Chat context assembly
+- [x] 周 / 月 / 年 Growth Recap
 
 ### Phase 5 · 复杂编排（满足条件时）
 

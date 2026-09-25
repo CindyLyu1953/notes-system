@@ -2,6 +2,7 @@
 
 Design documentation:
 
+- [Engineering handbook](./docs/architecture/README.md)
 - [AI workflow](./docs/knowledge-identity-ai-workflow.md)
 - [Domain language](./CONTEXT.md)
 - [Architecture decision: evidence-first Action pipeline](./docs/adr/0001-evidence-first-action-pipeline.md)
