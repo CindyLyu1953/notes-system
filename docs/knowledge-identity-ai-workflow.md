@@ -23,7 +23,7 @@
   ↓
 保存原始 Input
   ↓
-AI 分阶段提取 Knowledge Items、归纳候选、完成八问 Qualification、对齐现有知识库
+AI 通过隔离调用提取 Knowledge Items、盲归纳候选、完成九问 Qualification、最后对齐现有知识库
   ↓
 生成 pending Actions
   ↓
@@ -62,7 +62,7 @@ Capture Input
 
 | Node | 输入 | 输出 |
 |---|---|---|
-| `extract_knowledge` | 原始 Input + 现有 Concepts | Knowledge Items、candidates、八问评分与 alignment |
+| `extract_knowledge` | 原始 Input；Qualification 与 alignment 分阶段获得所需上下文 | Knowledge Items、candidates、九问评分与 alignment |
 | `evaluate_states` | candidates + 历史 Evidence | Knowledge State proposals |
 | `record_learning_event` | 本次变化 | Learning Event proposal |
 | `generate_recap` | 时间范围内的 Events / Facts | Growth Recap |
@@ -181,7 +181,7 @@ Knowledge Identity Chat 不把全部历史塞给模型。每次回答只组装�
 ### Phase 3 · 真正的 AI extraction
 
 - [x] 接入 OpenAI Responses API，并用 Pydantic schema 解析 Structured Output
-- [x] 增加 Knowledge Item → Concept induction → 八问 Qualification → Knowledge-base alignment
+- [x] 增加 Knowledge Item → blind Concept induction → 独立九问 Qualification → Knowledge-base alignment
 - [x] 建立 `mention / explanation / application / reflection` Knowledge State signals
 - [x] 记录 provider、prompt/version、模型、response ID、耗时与 fallback 原因
 - [x] 默认保持本地处理；只有显式开启环境变量时才向外部模型发送内容

@@ -23,7 +23,7 @@ A concrete definition, principle, responsibility, step, distinction, example, or
 _Avoid_: Concept, summary, topic label
 
 **Concept Qualification**:
-An explicit semantic assessment of whether a candidate deserves to become a durable Concept. It uses the same eight questions and deterministic score for every subject domain.
+An explicit semantic assessment of whether a candidate deserves to become a durable Concept. It uses the same nine questions and deterministic score for every subject domain.
 _Avoid_: Keyword filter, blacklist, naming rule
 
 **Concept Alignment**:

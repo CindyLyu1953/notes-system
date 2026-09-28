@@ -4,24 +4,24 @@
 
 Concept extraction is semantic knowledge modeling, not keyword extraction. The workflow first identifies what the source teaches, then decides which durable containers deserve to exist in the user's long-term Knowledge Identity. There are no domain-specific aliases, suffix rules, or blacklists.
 
-The current implementation asks the model for one structured result containing stages 1–4, then executes stage 5 deterministically in the backend. Keeping one remote call limits latency and cost; the stage outputs remain explicit, inspectable, testable, and stored in workflow Actions.
+The implementation uses three isolated structured model calls before deterministic backend policy. Induction receives only the source, qualification receives only the fixed draft, and alignment receives the fixed candidates plus the existing knowledge base. This prevents legacy taxonomy from anchoring induction and prevents a generator from grading its own output in the same response.
 
 ## End-to-end flow
 
 ```text
-Raw Input + existing Concepts
+Raw Input
         │
         ▼
-1. Extract Knowledge Items
+1. Blind induction: extract Knowledge Items
         │ concrete claims + source excerpts
         ▼
-2. Induce candidate Concepts
+2. Blind induction: propose candidate Concepts
         │ group item IDs under durable containers
         ▼
-3. Qualify every candidate
-        │ eight answers, eight 0–2 scores
+3. Independent reviewer: qualify every candidate
+        │ nine answers, nine 0–2 scores
         ▼
-4. Align with the Knowledge Identity
+4. Independent aligner + existing Concepts
         │ create | attach_existing | knowledge_item | document_structure
         ▼
 5. Backend policy
@@ -54,25 +54,26 @@ The agent must answer every question. Each answer contains a short reason and ex
 | `parent_independence` | Is it more than a property, responsibility, step, example, or subsection of a broader candidate? | Parent independence and redundancy |
 | `context_independence` | Would it remain meaningful if the current document disappeared? | Durability |
 | `scope_coherence` | Is it one coherent, bounded subject rather than a vague label, compound list, synonym, or duplicate? | Scope coherence and non-vagueness |
+| `label_fidelity` | Does the exact candidate label faithfully name the common scope of its assigned items, without document-specific modifiers, over-broadening, or bundling? | Exact label-to-content fidelity |
 
 No additional hidden dimensions participate in scoring.
 
 ### Score and confidence
 
 ```text
-quality_score = sum(the eight question scores)       # 0–16
-confidence    = quality_score / 16                   # 0.0000–1.0000
+quality_score = sum(the nine question scores)        # 0–18
+confidence    = quality_score / 18                   # 0.0000–1.0000
 ```
 
 The backend calculates both values. A model-provided confidence cannot override them.
 
 | Result | Rule | Behaviour |
 | --- | --- | --- |
-| Qualified | score ≥ 12 and every hard gate passes | Propose the Concept normally |
-| Review | score 9–11 and every hard gate passes | Propose it with required user confirmation |
-| Knowledge Item | score ≤ 8 or any hard gate fails | Do not create a Concept; route its items to the declared parent when possible |
+| Qualified | score ≥ 14 and every hard gate passes | Propose the Concept normally |
+| Review | score 10–13 and every hard gate passes | Propose it with required user confirmation |
+| Knowledge Item | score ≤ 9 or any hard gate fails | Do not create a Concept; route its items to the declared parent when possible |
 
-Hard gates come from the same questions: `identifiable ≥ 1`, `content_richness ≥ 1`, `structure_independence = 2`, `parent_independence ≥ 1`, and `scope_coherence ≥ 1`. A candidate can have a high arithmetic score and still fail if it is clearly a chapter heading. This is intentional and uses no separate heuristic.
+Hard gates come from the same questions: `identifiable ≥ 1`, `content_richness ≥ 1`, `structure_independence = 2`, `parent_independence ≥ 1`, `scope_coherence ≥ 1`, and `label_fidelity = 2`. A candidate can have a high arithmetic score and still fail if it is a chapter heading or if the reviewer justified a broader subject than the exact label. This is intentional and uses no separate heuristic.
 
 ### Stage 4 — Align with existing knowledge
 
@@ -97,4 +98,4 @@ The qualification module has one interface: candidate in, score/confidence/statu
 
 ## Observability and evaluation
 
-Workflow Actions retain Knowledge Items and all eight qualification answers, so a poor decision can be inspected without replaying hidden chain-of-thought. Evaluation fixtures must cover a durable Concept, a borderline review, a high-scoring heading that fails a hard gate, parent routing, existing-Concept alignment, and accumulation across Inputs.
+Workflow Actions retain Knowledge Items and all nine qualification answers, so a poor decision can be inspected without replaying hidden chain-of-thought. Evaluation fixtures must cover a durable Concept, a borderline review, a high-scoring heading that fails a hard gate, exact-label mismatch, parent routing, existing-Concept alignment, and accumulation across Inputs.
