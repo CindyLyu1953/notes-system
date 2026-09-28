@@ -25,8 +25,8 @@ Each top-level page answers one user question. Capture stays effortless; reflect
 
 ## Knowledge and Library views
 
-- Identity lists confirmed Concepts and their Evidence count. Relation inference and the Next recommendation surface are intentionally outside the MVP.
-- Library groups records by source. `Original` is read-only and opens immutable artifact bytes when a file exists; extracted text is only a readable preview.
+- Identity lists confirmed Concepts and their accumulated “What you know” items. New captures append evidence-backed items to an existing Concept. Relation inference and the Next recommendation surface are intentionally outside the MVP.
+- Library groups records by source. `Original` is read-only, preserves extracted whitespace and list markers in the normal reading typeface, and opens immutable artifact bytes when a file exists.
 - Both note views use the product's normal sans-serif reading typography: 16px body text, 1.7-1.75 line height and a maximum 72-character measure.
 - `AI note` is a standalone study note: it states the source's definitions, principles, processes, responsibilities, distinctions, examples and practical details instead of describing what the source is about. It visually highlights `[[Concept]]` markers and never replaces or mutates the Original.
 - Tabs use native buttons with `role="tab"`, visible selected state and keyboard focus; long source text scrolls inside its reader rather than expanding the entire page.

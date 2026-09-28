@@ -32,9 +32,9 @@ Current Actions are `record_input`, `upsert_concept`, `set_knowledge_state`, `cr
 - Disabled for short text: deterministic local extractor.
 - Document timeout or invalid response: preserve the Input, propose no derived knowledge, and expose a retry action.
 
-Each workflow records provider, model, prompt version, response ID, latency and fallback reason. Concept matching uses existing names; state changes use observable `mention`, `explanation`, `application` or `reflection` signals.
+Each workflow records provider, model, prompt version, response ID, latency and fallback reason. Concept matching uses existing names; state changes use observable `mention`, `explanation`, `application` or `reflection` signals. Every distinct signal is persisted as an evidence-backed Knowledge Item, so later Inputs expand the Concept's visible “What you know” content.
 
-For substantive documents, extraction scans the complete source and may propose up to 12 Concepts. Selection favors durable knowledge topics, named methods/frameworks, professional responsibilities and transferable skills across distinct sections. Names use the most informative supported granularity (`Project management`, not `Project`; `Program management`, not `Program`), and generic/specific duplicates are prohibited. The source still controls coverage: 6-12 is a target only when the evidence contains that many distinct major topics.
+For substantive documents, extraction scans the complete source and proposes only durable subjects, named methods/frameworks, tools and transferable skills. Definitions, responsibilities, steps, examples and document headings are Knowledge Items under their broader Concept—not additional Concepts. Names use a reusable granularity (`Project management`, not `Project management fundamentals` or `Project manager responsibilities`), compound labels are split (`Program management` and `Portfolio management`), and umbrella/section duplicates are prohibited.
 
 Document extraction uses the shared OpenAI timeout and up to `AI_EXTRACTION_MAX_ATTEMPTS`. A retry reuses the original Input and workflow, so it cannot duplicate the uploaded source. Keyword fallback is intentionally prohibited for attachments because a plausible-looking wrong Concept is less trustworthy than an explicit failure.
 

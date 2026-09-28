@@ -188,7 +188,7 @@ function Composer({ onSubmit, busy }) {
 
 function Graph({ identity }) {
   if (!identity.concepts.length) return <div className="knowledge-graph knowledge-graph--empty" aria-label="Knowledge concepts"><div className="graph-empty"><Icon name="graph" size={28}/><strong>No concepts yet</strong><span>Capture something, then approve the concepts that feel useful.</span></div></div>;
-  return <div className="knowledge-map__concepts" aria-label="Knowledge concepts">{identity.concepts.map((concept) => <article className={`map-concept map-concept--${concept.state}`} key={concept.id} title={concept.evidence[0]?.excerpt}><strong>{concept.name}</strong><small>{stateLabel[concept.state]} · {concept.evidence.length} source{concept.evidence.length === 1 ? "" : "s"}</small></article>)}</div>;
+  return <div className="knowledge-map__concepts" aria-label="Knowledge concepts">{identity.concepts.map((concept) => { const items = [...new Set(concept.evidence.map((item) => item.excerpt).filter(Boolean))]; const sourceCount = new Set(concept.evidence.map((item) => item.input_id)).size; return <article className={`map-concept map-concept--${concept.state}`} key={concept.id}><header><div><strong>{concept.name}</strong><small>{stateLabel[concept.state]} · {sourceCount} source{sourceCount === 1 ? "" : "s"}</small></div><Status state={concept.state}/></header><div className="map-concept__knowledge"><span>What you know</span>{items.length ? <ul>{items.map((item) => <li key={item}>{item}</li>)}</ul> : <p>No knowledge items yet.</p>}</div></article>; })}</div>;
 }
 
 function ReviewPanel({ run, busy, onAccept, onReject, onRetry }) {
@@ -245,7 +245,7 @@ function HighlightedText({ text }) {
 }
 
 function OriginalNote({ text }) {
-  return <article className="original-note">{text.split(/\n{2,}/).map((paragraph, index) => paragraph.trim() ? <p key={index}>{paragraph.trim()}</p> : null)}</article>;
+  return <article className="original-note"><div className="original-note__content">{text}</div></article>;
 }
 
 function StructuredNote({ note }) {
