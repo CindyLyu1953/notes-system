@@ -22,6 +22,14 @@ _Avoid_: Tag, section heading, isolated fact
 A concrete definition, principle, responsibility, step, distinction, example, or other claim learned about a Concept. Knowledge Items accumulate from Evidence as the user adds Inputs.
 _Avoid_: Concept, summary, topic label
 
+**Concept Qualification**:
+An explicit semantic assessment of whether a candidate deserves to become a durable Concept. It uses the same eight questions and deterministic score for every subject domain.
+_Avoid_: Keyword filter, blacklist, naming rule
+
+**Concept Alignment**:
+The placement of a qualified candidate into the existing Knowledge Identity: attach to an existing Concept, create a new Concept, retain it as a Knowledge Item under a parent, or discard it as document structure.
+_Avoid_: String matching, tag deduplication
+
 **Knowledge State**:
 The system's current evidence-backed assessment of the user's relationship to a Concept: Unknown, Aware, Learning, or Known.
 _Avoid_: Score, mastery percentage

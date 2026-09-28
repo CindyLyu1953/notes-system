@@ -23,7 +23,7 @@
   ↓
 保存原始 Input
   ↓
-AI 提取 Concepts / Knowledge signals / structured note
+AI 分阶段提取 Knowledge Items、归纳候选、完成八问 Qualification、对齐现有知识库
   ↓
 生成 pending Actions
   ↓
@@ -45,7 +45,10 @@ MVP 的 Capture Graph：
 
 ```text
 Capture Input
-  → Extract Concepts
+  → Extract Knowledge Items
+  → Induce Concept Candidates
+  → Qualify with Eight Questions
+  → Align with Existing Concepts
   → Evaluate Knowledge States
   → Record Learning Event
   → Refresh Identity
@@ -59,7 +62,7 @@ Capture Input
 
 | Node | 输入 | 输出 |
 |---|---|---|
-| `extract_concepts` | 原始 Input | 标准化 Concept candidates |
+| `extract_knowledge` | 原始 Input + 现有 Concepts | Knowledge Items、candidates、八问评分与 alignment |
 | `evaluate_states` | candidates + 历史 Evidence | Knowledge State proposals |
 | `record_learning_event` | 本次变化 | Learning Event proposal |
 | `generate_recap` | 时间范围内的 Events / Facts | Growth Recap |
@@ -88,7 +91,7 @@ Knowledge Identity 同时保存“发生过什么”和“现在是什么”。
 | 类型 | 回答的问题 | Knowledge Identity 中的实体 |
 |---|---|---|
 | Event | 发生过什么？ | Input、Learning Event、用户纠错 |
-| Fact | 现在如何理解？ | Concept、Relation、Knowledge State |
+| Fact | 现在如何理解？ | Concept、Knowledge Item、Knowledge State |
 
 例子：
 
@@ -114,13 +117,11 @@ Event 保持不可变。Fact 可以随着新 Evidence 变化，但每次变化�
 - 创建新 Concept，状态为 Aware
 - 给现有 Concept 增加 Evidence
 - 创建低风险 Learning Event
-- 建立高置信且可撤销的 Relation
 
 ### 必须确认
 
 - 把 Concept 提升为 Known
 - 合并两个 Concepts
-- 删除或覆盖现有 Relation
 - AI 的解释存在多个合理版本
 - 置信度低于设定阈值
 - 修改会影响历史 Recap 或大量下游结果
@@ -174,13 +175,13 @@ Knowledge Identity Chat 不把全部历史塞给模型。每次回答只组装�
 - [x] 增加整次理解的接受 / 拒绝
 - [x] 前端展示“AI 准备如何理解这条输入”
 - [x] 支持修改 Concept 名称与 Knowledge State
-- [x] 支持逐条接受或拒绝 Concept / Relation proposal
-- [x] 拒绝 Concept 时自动拒绝依赖的 State、Relation 与下游引用
+- [x] 支持逐条接受或拒绝 Concept proposal
+- [x] 拒绝 Concept 时自动拒绝依赖的 State 与下游引用
 
 ### Phase 3 · 真正的 AI extraction
 
 - [x] 接入 OpenAI Responses API，并用 Pydantic schema 解析 Structured Output
-- [x] 增加 Concept 去重与有证据的 Relation 判断
+- [x] 增加 Knowledge Item → Concept induction → 八问 Qualification → Knowledge-base alignment
 - [x] 建立 `mention / explanation / application / reflection` Knowledge State signals
 - [x] 记录 provider、prompt/version、模型、response ID、耗时与 fallback 原因
 - [x] 默认保持本地处理；只有显式开启环境变量时才向外部模型发送内容

@@ -35,6 +35,7 @@ Open <http://localhost:5173/notes-system/>. No sign-in is required. Vite proxies
 7. [Media ingestion and deployment](./07-media-ingestion-and-deployment.md) — OCR, transcription, S3, queue, worker.
 8. [Knowledge intelligence](./08-knowledge-intelligence.md) — grounded answers, recap generation, citation validation and evals.
 9. [User control and launch safeguards](./09-control-and-safeguards.md) — editing, backup, undo, health, limits, and remaining auth work.
+10. [Concept induction and qualification](./10-concept-induction-and-qualification.md) — staged semantic reasoning, eight-question scoring, alignment and persistence.
 
 Product language lives in [`CONTEXT.md`](../../CONTEXT.md); the rationale for the write path lives in [ADR-0001](../adr/0001-evidence-first-action-pipeline.md).
 
@@ -54,6 +55,7 @@ Product language lives in [`CONTEXT.md`](../../CONTEXT.md); the rationale for th
 | Capture UI or review experience | `frontend: src/features/knowledgeIdentity/KnowledgeIdentityPrototype.jsx` |
 | Browser/API contract | `frontend: src/features/knowledgeIdentity/api.js` and `backend: src/backend/api/routes/knowledge_identity.py` |
 | AI interpretation | `backend: src/backend/app/ai_extraction.py` |
+| Concept quality score and gates | `backend: src/backend/app/concept_qualification.py` |
 | Answers and recaps | `backend: src/backend/app/knowledge_intelligence.py` |
 | Workflow order or write rules | `backend: src/backend/app/knowledge_workflow.py` |
 | Product-level behavior | `backend: src/backend/app/knowledge_identity.py` |
