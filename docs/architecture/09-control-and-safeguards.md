@@ -4,6 +4,8 @@
 
 The Library page is a focused reading surface for Notes and backups. Each note can be expanded and switched between the unchanged Original and the detailed AI version. The latest mutation can be undone while the backend process remains running.
 
+Historical workflow runs are treated as an audit record, not as executable instructions. When an obsolete action type is removed from the product, the backend discards that action while loading old runs instead of failing startup; current workflows still reject and never generate the obsolete type.
+
 Backup export downloads one versioned JSON document containing the complete knowledge state. Restore validates that document against the public schema before replacing the current state; the replacement can be undone during the same backend session.
 
 ## Safety rules
